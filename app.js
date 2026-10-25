@@ -1,6 +1,10 @@
 "use strict";
 /* App-Version: bei jeder Änderung auch CACHE in sw.js erhöhen */
-const APP = { version: "1.0.0", apk: "" };
+const APP = {
+  version: "1.0.0",
+  apk: "https://github.com/marchello859/codepfad/releases/download/apk/codepfad.apk",
+  claude: "https://claude.ai/artifact/N8smC6QFFw6uwJ6qgoPX8Y"
+};
 const LANG_ORDER = ["c", "py", "js"];
 
 /* =====================================================================
@@ -442,6 +446,7 @@ function viewProg() {
     + (S.exportCode ? '<textarea id="export-code" class="code-field" readonly aria-label="Dein Fortschritts-Code">' + esc(S.exportCode) + "</textarea>" + (S.exportNote ? '<p class="muted">' + esc(S.exportNote) + "</p>" : "") : "")
     + '<textarea id="import-code" class="code-field" placeholder="Code vom anderen Gerät hier einfügen" aria-label="Code vom anderen Gerät"></textarea>'
     + '<div class="row"><button class="btn small primary" data-act="import">Code übernehmen</button>' + (S.importNote ? '<span class="muted">' + esc(S.importNote) + "</span>" : "") + "</div></section>";
+  if (!S.ai && APP.claude) html += '<section class="card tutor"><h2>KI-Tutor</h2><p class="muted">Erklärungen, Code-Prüfung und neue Fragen von Claude gibt es in der <a href="' + esc(APP.claude) + '" target="_blank" rel="noopener">Claude-Version von Codepfad</a>. Dort wird dein Fortschritt auch über dein Claude-Konto abgeglichen.</p></section>';
   html += '<section class="card tutor"><h2>App installieren</h2><div class="howto">'
     + "<div><strong>Samsung Galaxy S24</strong><p>" + (APP.apk ? 'Lade die <a href="' + esc(APP.apk) + '">Codepfad-APK</a> herunter und öffne sie. Android fragt einmal, ob du Apps aus dieser Quelle erlauben willst. Alternativ in Chrome: Menü → „App installieren“.' : "Öffne die App in Chrome, tippe auf das Menü und wähle „App installieren“.") + "</p></div>"
     + "<div><strong>Windows 11</strong><p>Öffne die App in Edge oder Chrome und klicke in der Adressleiste auf das Installieren-Symbol, oder im Menü auf „Apps“ → „Diese Website als App installieren“. Codepfad bekommt ein eigenes Fenster und einen Eintrag im Startmenü.</p></div>"

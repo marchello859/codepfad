@@ -1,0 +1,2193 @@
+<title>Codepfad</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+<style>
+/* Layout: app shell — sidebar on desktop, top bar + bottom tab bar on phones; content column max 880px */
+:root {
+  --bg: #F3F5F8;
+  --surface: #FFFFFF;
+  --surface-2: #ECEFF4;
+  --ink: #131923;
+  --muted: #5B6576;
+  --line: #DEE3EB;
+  --accent: #2F5BEA;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E7ECFE;
+  --ok: #12804A;
+  --ok-soft: #E2F4E9;
+  --bad: #C42F3A;
+  --bad-soft: #FCE7E8;
+  --warn: #A86400;
+  --warn-soft: #FFF0D9;
+  --code-bg: #10151F;
+  --code-line: #1E2533;
+  --code-ink: #DCE3EF;
+  --code-muted: #6D7A90;
+  --t-kw: #93AEFF;
+  --t-str: #9FDDB0;
+  --t-num: #FFC27A;
+  --t-com: #6D7A90;
+  --t-pre: #F49CCB;
+  --t-fn: #7FD6E8;
+  --shadow: 0 1px 2px rgba(19, 25, 35, .05), 0 6px 20px rgba(19, 25, 35, .05);
+  --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Sora", "Figtree", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  --r: 14px;
+  --r-sm: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C0F15; --surface: #141922; --surface-2: #1B212C; --ink: #E6EAF1; --muted: #96A0B2; --line: #252D3A;
+    --accent: #7E9CFF; --accent-ink: #0C0F15; --accent-soft: #1C2645;
+    --ok: #4CC98A; --ok-soft: #12291C; --bad: #FF7B83; --bad-soft: #351719; --warn: #F2B35A; --warn-soft: #2F230F;
+    --code-bg: #090C11; --code-line: #171D28; --shadow: none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C0F15; --surface: #141922; --surface-2: #1B212C; --ink: #E6EAF1; --muted: #96A0B2; --line: #252D3A;
+  --accent: #7E9CFF; --accent-ink: #0C0F15; --accent-soft: #1C2645;
+  --ok: #4CC98A; --ok-soft: #12291C; --bad: #FF7B83; --bad-soft: #351719; --warn: #F2B35A; --warn-soft: #2F230F;
+  --code-bg: #090C11; --code-line: #171D28; --shadow: none; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 16px; line-height: 1.55; -webkit-tap-highlight-color: transparent; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.6rem, 4.5vw, 2.15rem); font-weight: 700; }
+h2 { font-size: 1.2rem; font-weight: 600; }
+h3 { font-size: 1.02rem; font-weight: 600; }
+p { margin: 0; }
+code { font-family: var(--font-mono); font-size: .88em; background: var(--surface-2); padding: .1em .35em; border-radius: 5px; }
+.muted { color: var(--muted); }
+.eyebrow { font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* ---------- shell ---------- */
+.shell { min-height: 100%; }
+.side { display: none; }
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 12px; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 9px; font-family: var(--font-display); font-weight: 700; font-size: 1.08rem; letter-spacing: -0.02em; }
+.brand-mark { width: 30px; height: 30px; border-radius: 9px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-family: var(--font-mono); font-size: .8rem; font-weight: 600; }
+.seg { display: inline-flex; background: var(--surface-2); border-radius: 11px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: transparent; padding: 6px 11px; border-radius: 8px; font-weight: 600; font-size: .88rem; color: var(--muted); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px calc(96px + env(safe-area-inset-bottom, 0px)); }
+.wrap { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+.wrap.wide { max-width: 1240px; }
+
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; background: var(--surface); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+}
+.tabbar button { border: 0; background: none; padding: 9px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: .72rem; font-weight: 600; color: var(--muted); }
+.tabbar button svg { width: 22px; height: 22px; }
+.tabbar button[aria-current="page"] { color: var(--accent); }
+
+@media (min-width: 900px) {
+  .shell { display: grid; grid-template-columns: 236px minmax(0, 1fr); }
+  .side { display: flex; flex-direction: column; gap: 22px; position: sticky; top: 0; height: 100vh; padding: 22px 16px; border-right: 1px solid var(--line); background: var(--surface); }
+  .side nav { display: flex; flex-direction: column; gap: 2px; }
+  .side nav button { border: 0; background: none; display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 10px; font-weight: 600; color: var(--muted); text-align: left; }
+  .side nav button svg { width: 20px; height: 20px; }
+  .side nav button:hover { background: var(--surface-2); color: var(--ink); }
+  .side nav button[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+  .side .sync { margin-top: auto; }
+  .tabbar, .top .brand { display: none; }
+  .top { justify-content: flex-end; }
+  main { padding-block: 28px 48px; }
+}
+
+/* ---------- common pieces ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; box-shadow: var(--shadow); }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 10px 16px; border-radius: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; }
+.btn:hover { border-color: color-mix(in srgb, var(--ink) 25%, var(--line)); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { background: var(--surface-2); color: var(--ink); }
+.btn.small { min-height: 36px; padding: 6px 12px; font-size: .9rem; }
+.btn:disabled { opacity: .55; cursor: default; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.lvl { display: inline-flex; align-items: center; gap: 6px; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 9px; border-radius: 99px; }
+.lvl-1 { color: var(--ok); background: var(--ok-soft); }
+.lvl-2 { color: var(--warn); background: var(--warn-soft); }
+.lvl-3 { color: var(--bad); background: var(--bad-soft); }
+.meter { height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .4s ease; }
+.ai-only { display: none !important; }
+[data-ai="1"] .ai-only { display: revert !important; }
+[data-ai="1"] .ai-only.flex { display: flex !important; }
+.sync { font-size: .8rem; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+.sync i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.sync[data-s="synced"] i { background: var(--ok); }
+.sync[data-s="saving"] i { background: var(--warn); }
+.sync[data-s="error"] i { background: var(--bad); }
+
+/* ---------- code ---------- */
+.code { margin: 0; background: var(--code-bg); border-radius: var(--r-sm); overflow: hidden; color: var(--code-ink); }
+.code-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--code-line); font-family: var(--font-mono); font-size: .72rem; color: var(--code-muted); text-transform: uppercase; letter-spacing: .06em; }
+.code-bar button { border: 0; background: transparent; color: var(--t-kw); font-family: var(--font-ui); font-size: .82rem; font-weight: 600; text-transform: none; letter-spacing: 0; padding: 4px 8px; border-radius: 7px; display: inline-flex; gap: 6px; align-items: center; }
+.code-bar button:hover { background: var(--code-line); }
+.code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-family: var(--font-mono); font-size: .86rem; line-height: 1.6; tab-size: 4; }
+.code pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+.t-kw { color: var(--t-kw); } .t-str { color: var(--t-str); } .t-num { color: var(--t-num); } .t-com { color: var(--t-com); font-style: italic; } .t-pre { color: var(--t-pre); } .t-fn { color: var(--t-fn); }
+
+/* ---------- path ---------- */
+.hero { display: flex; flex-direction: column; gap: 14px; padding: 24px; }
+.hero p { color: var(--muted); max-width: 60ch; }
+.hero .stats { display: flex; justify-content: space-between; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.level { display: flex; flex-direction: column; gap: 10px; }
+.level-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 4px 2px; }
+.level-head .count { margin-left: auto; font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lessons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lesson-row { width: 100%; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 14px; align-items: center; text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 14px 16px; }
+.lesson-row:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.ln-num { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-family: var(--font-mono); font-weight: 600; font-size: .9rem; background: var(--surface-2); color: var(--muted); }
+.lesson-row.is-done .ln-num { background: var(--ok-soft); color: var(--ok); }
+.ln-title { display: block; font-weight: 600; }
+.ln-meta { display: block; font-size: .83rem; color: var(--muted); }
+.ln-state { display: flex; gap: 6px; color: var(--muted); }
+.ln-state svg { width: 20px; height: 20px; }
+.ln-state .on { color: var(--ok); }
+.ln-state .star.on { color: var(--warn); }
+
+/* ---------- lesson ---------- */
+.back { border: 0; background: none; color: var(--muted); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; padding: 6px 0; }
+.back:hover { color: var(--ink); }
+.back svg { width: 18px; height: 18px; }
+.lesson { display: flex; flex-direction: column; gap: 16px; }
+.lesson-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: .85rem; color: var(--muted); }
+.lesson > p { max-width: 68ch; font-size: 1.04rem; }
+.tip { border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); background: var(--accent-soft); border-radius: var(--r-sm); padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.tip strong { font-size: .76rem; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+.q { display: flex; flex-direction: column; gap: 12px; padding: 18px; }
+.q + .q { border-top: 1px solid var(--line); }
+.q-text { font-weight: 600; }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; border: 1.5px solid var(--line); background: var(--surface); border-radius: 11px; padding: 11px 14px; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; min-height: 48px; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt .k { width: 26px; height: 26px; border-radius: 7px; background: var(--surface-2); display: grid; place-items: center; font-size: .8rem; font-weight: 700; color: var(--muted); }
+.opt .v { font-family: var(--font-mono); font-size: .9rem; overflow-wrap: anywhere; padding-top: 2px; }
+.opt.v-text .v { font-family: var(--font-ui); font-size: .98rem; padding-top: 1px; }
+.opt:disabled { cursor: default; }
+.opt.right { border-color: var(--ok); background: var(--ok-soft); }
+.opt.right .k { background: var(--ok); color: var(--surface); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.opt.wrong .k { background: var(--bad); color: var(--surface); }
+.why { border-radius: 11px; padding: 12px 14px; background: var(--surface-2); display: flex; flex-direction: column; gap: 8px; }
+.why .verdict { font-weight: 700; }
+.why .verdict.ok { color: var(--ok); }
+.why .verdict.no { color: var(--bad); }
+.task { display: flex; flex-direction: column; gap: 12px; }
+.task .state { font-size: .9rem; font-weight: 600; display: flex; gap: 6px; align-items: center; }
+.task .state.ok { color: var(--ok); }
+.lesson-nav { display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap; }
+
+.tutor { display: flex; flex-direction: column; gap: 12px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 7px 13px; font-size: .88rem; font-weight: 600; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.ask { display: flex; gap: 8px; }
+.ask input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 11px; padding: 10px 14px; min-height: 44px; }
+.answer { display: flex; flex-direction: column; gap: 10px; border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; overflow-wrap: anywhere; min-width: 0; }
+.answer:empty { display: none; }
+.answer pre { margin: 0; background: var(--code-bg); color: var(--code-ink); padding: 12px 14px; border-radius: 10px; overflow-x: auto; font-family: var(--font-mono); font-size: .84rem; line-height: 1.55; }
+.answer pre code { background: none; padding: 0; color: inherit; }
+.answer ul, .answer ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+.answer h4 { margin: 4px 0 0; font-family: var(--font-display); font-size: 1rem; }
+.answer .thinking { color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.answer .err { color: var(--bad); }
+.dots::after { content: "…"; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+
+/* ---------- quiz mode ---------- */
+.quiz-top { display: flex; align-items: center; gap: 12px; }
+.quiz-top .meter { flex: 1; }
+.quiz-top span { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.result { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.score { font-family: var(--font-display); font-size: 3rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: .85rem; font-weight: 600; color: var(--muted); }
+.from { font-size: .8rem; color: var(--muted); }
+
+/* ---------- playground ---------- */
+.pg-grid { display: grid; gap: 14px; }
+@media (min-width: 1100px) { .pg-grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; } }
+.pg-task { display: flex; flex-direction: column; gap: 8px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); background: var(--accent-soft); border-radius: var(--r); padding: 14px 16px; }
+.pg-task .row { justify-content: space-between; }
+.verdict-bar { border-radius: 10px; padding: 10px 14px; font-weight: 600; }
+.verdict-bar.ok { background: var(--ok-soft); color: var(--ok); }
+.verdict-bar.no { background: var(--bad-soft); color: var(--bad); }
+.ed-card { background: var(--code-bg); border-radius: var(--r); overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.ed-bar { display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 14px; border-bottom: 1px solid var(--code-line); color: var(--code-muted); font-family: var(--font-mono); font-size: .8rem; flex-wrap: wrap; }
+.ed-bar .file { color: var(--code-ink); margin-right: auto; }
+.ed-bar select, .ed-bar button { background: var(--code-line); color: var(--code-ink); border: 0; border-radius: 8px; padding: 6px 10px; font-family: var(--font-ui); font-size: .82rem; font-weight: 600; max-width: 200px; }
+.editor { position: relative; height: clamp(280px, 48vh, 560px); display: grid; grid-template-columns: auto minmax(0, 1fr); overflow: hidden; }
+.gutter { padding: 14px 10px 14px 12px; text-align: right; color: var(--code-muted); font-family: var(--font-mono); font-size: 14px; line-height: 1.6; user-select: none; border-right: 1px solid var(--code-line); min-width: 42px; overflow: hidden; }
+.gutter-in, .ed-hl { will-change: transform; }
+.gutter-in { white-space: pre; }
+.ed-area { position: relative; overflow: hidden; }
+.ed-hl, .ed-area textarea { margin: 0; padding: 14px 16px; font-family: var(--font-mono); font-size: 14px; line-height: 1.6; tab-size: 4; white-space: pre; letter-spacing: 0; font-variant-ligatures: none; }
+.ed-hl { position: absolute; inset: 0 auto auto 0; color: var(--code-ink); pointer-events: none; min-width: 100%; }
+.ed-area textarea { position: absolute; inset: 0; width: 100%; height: 100%; resize: none; border: 0; outline: none; background: transparent; color: transparent; caret-color: #FFFFFF; overflow: auto; -webkit-text-fill-color: transparent; }
+.ed-area textarea::selection { background: rgba(126, 156, 255, .35); -webkit-text-fill-color: transparent; }
+.keybar { display: flex; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--code-line); overflow-x: auto; scrollbar-width: none; }
+.keybar button { flex: none; min-width: 40px; height: 38px; border: 0; border-radius: 8px; background: var(--code-line); color: var(--code-ink); font-family: var(--font-mono); font-size: .95rem; }
+.keybar button:active { background: #2A3446; }
+@media (pointer: fine) and (min-width: 900px) { .keybar { display: none; } }
+.run-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.stdin { border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+.stdin summary { padding: 10px 14px; font-weight: 600; font-size: .9rem; cursor: pointer; }
+.stdin textarea { display: block; width: calc(100% - 20px); margin: 0 10px 10px; min-height: 64px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 8px 10px; font-family: var(--font-mono); font-size: .88rem; resize: vertical; }
+.console { background: var(--code-bg); border-radius: var(--r); overflow: hidden; color: var(--code-ink); }
+.console-bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--code-line); font-family: var(--font-mono); font-size: .76rem; text-transform: uppercase; letter-spacing: .06em; color: var(--code-muted); }
+.console pre { margin: 0; padding: 12px 14px; min-height: 140px; max-height: 360px; overflow: auto; font-family: var(--font-mono); font-size: .86rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.console .e { color: #FF8F96; }
+.console .sys { color: var(--code-muted); }
+.engine-note { font-size: .82rem; color: var(--muted); }
+
+/* ---------- progress ---------- */
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 700px) { .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: flex; flex-direction: column; gap: 4px; }
+.tile b { font-family: var(--font-display); font-size: 1.8rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile span { font-size: .82rem; color: var(--muted); }
+.lang-prog { display: grid; gap: 14px; }
+.lang-prog .row { justify-content: space-between; font-size: .92rem; }
+.lang-prog .row span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.howto { display: grid; gap: 12px; }
+@media (min-width: 700px) { .howto { grid-template-columns: 1fr 1fr; } }
+.howto div { display: flex; flex-direction: column; gap: 4px; }
+.howto p { color: var(--muted); font-size: .92rem; }
+.confirm { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="shell" id="shell">
+  <aside class="side">
+    <div class="brand"><span class="brand-mark">{ }</span>Codepfad</div>
+    <nav id="side-nav"></nav>
+    <div class="sync" id="sync-side" data-s="local"><i></i><span>Nur auf diesem Gerät</span></div>
+  </aside>
+  <div class="main-col">
+    <header class="top">
+      <div class="brand"><span class="brand-mark">{ }</span>Codepfad</div>
+      <div class="seg" id="lang-seg" role="group" aria-label="Programmiersprache"></div>
+    </header>
+    <main id="main"></main>
+  </div>
+  <nav class="tabbar" id="tabbar"></nav>
+</div>
+
+<script type="text/plain" id="js-worker">
+const fmt = (v, d = 0) => {
+  if (typeof v === "string") return d ? "'" + v + "'" : v;
+  if (typeof v === "function") return "[Function " + (v.name || "anonym") + "]";
+  if (Array.isArray(v)) return d > 2 ? "[Array]" : (v.length ? "[ " + v.map(x => fmt(x, d + 1)).join(", ") + " ]" : "[]");
+  if (v instanceof Error) return v.name + ": " + v.message;
+  if (v instanceof Promise) return "Promise { <pending> }";
+  if (v instanceof Map) return "Map(" + v.size + ") { " + [...v].map(([k, x]) => fmt(k, d + 1) + " => " + fmt(x, d + 1)).join(", ") + " }";
+  if (v instanceof Set) return "Set(" + v.size + ") { " + [...v].map(x => fmt(x, d + 1)).join(", ") + " }";
+  if (v && typeof v === "object") {
+    if (d > 2) return "[Object]";
+    const name = v.constructor && v.constructor !== Object ? v.constructor.name + " " : "";
+    const keys = Object.keys(v);
+    return name + (keys.length ? "{ " + keys.map(k => k + ": " + fmt(v[k], d + 1)).join(", ") + " }" : "{}");
+  }
+  if (typeof v === "bigint") return v + "n";
+  if (Object.is(v, -0)) return "-0";
+  return String(v);
+};
+const send = (t, s) => postMessage({ t, s });
+const line = (a) => a.map(x => fmt(x)).join(" ") + "\n";
+console.log = console.info = console.debug = (...a) => send("out", line(a));
+console.warn = console.error = (...a) => send("err", line(a));
+console.table = (x) => send("out", fmt(x) + "\n");
+const fail = (err) => send("err", (err && err.name ? err.name + ": " + err.message : "Fehler: " + fmt(err)) + "\n");
+self.onunhandledrejection = (ev) => { ev.preventDefault(); fail(ev.reason); };
+self.onmessage = async (e) => {
+  const lines = e.data.stdin ? e.data.stdin.split("\n") : [];
+  self.prompt = () => (lines.length ? lines.shift() : null);
+  const st = setTimeout, ct = clearTimeout, si = setInterval, ci = clearInterval;
+  const live = new Set();
+  let mainDone = false, finished = false;
+  const check = () => {
+    if (mainDone && !live.size && !finished) st(() => { if (!live.size && !finished) { finished = true; send("done"); } }, 0);
+  };
+  self.setTimeout = (f, ms, ...a) => {
+    const id = st(() => { live.delete(id); try { if (typeof f === "function") f(...a); } catch (err) { fail(err); } check(); }, ms);
+    live.add(id); return id;
+  };
+  self.clearTimeout = (id) => { live.delete(id); ct(id); check(); };
+  self.setInterval = (f, ms, ...a) => {
+    const id = si(() => { try { f(...a); } catch (err) { fail(err); } }, Math.max(ms || 0, 10));
+    live.add(id); return id;
+  };
+  self.clearInterval = (id) => { live.delete(id); ci(id); check(); };
+  try {
+    const AsyncFn = Object.getPrototypeOf(async function () {}).constructor;
+    await new AsyncFn(e.data.code)();
+  } catch (err) { fail(err); }
+  mainDone = true;
+  check();
+};
+</script>
+
+<script type="text/plain" id="c-worker">
+self.document = { baseURI: "https://cdn.jsdelivr.net/npm/picoc-web@1.1.0/dist/", currentScript: null };
+self.onmessage = async (e) => {
+  try { importScripts(e.data.url); } catch (err) { postMessage({ t: "unavailable", s: String(err) }); return; }
+  postMessage({ t: "ready" });
+  const input = e.data.stdin || "";
+  let i = 0;
+  try {
+    await self.picocjs.RunInteractively(e.data.code, () => (i < input.length ? input.charCodeAt(i++) : null), (txt) => postMessage({ t: "out", s: txt + "\n" }));
+    postMessage({ t: "done" });
+  } catch (err) {
+    postMessage({ t: "unavailable", s: String(err && err.message || err) });
+  }
+};
+</script>
+
+<script>
+"use strict";
+const R = String.raw;
+
+/* =====================================================================
+   Lerninhalte
+   Blöcke: ["p", text] · ["code", quelltext, {run:false, stdin}] · ["tip", text]
+   ===================================================================== */
+const LEVELS = { 1: "Einsteiger", 2: "Fortgeschritten", 3: "Profi" };
+
+const COURSES = {
+c: {
+  name: "C", file: "main.c",
+  intro: "C ist die Grundlage von Betriebssystemen, Mikrocontrollern und vielen anderen Sprachen. Wer C versteht, versteht, was im Computer wirklich passiert.",
+  starter: R`#include <stdio.h>
+
+int main(void) {
+    printf("Hallo, Codepfad!\n");
+    return 0;
+}`,
+  lessons: [
+  {
+    id: "c1", level: 1, title: "Dein erstes C-Programm", mins: 6,
+    body: [
+      ["p", "C ist eine kompilierte Sprache: Ein Compiler übersetzt deinen Quelltext in Maschinencode, den der Prozessor direkt ausführt. Deshalb ist C sehr schnell und steckt in Betriebssystemen, Mikrocontrollern und Spiele-Engines."],
+      ["code", R`#include <stdio.h>
+
+int main(void) {
+    printf("Hallo, Welt!\n");
+    return 0;
+}`],
+      ["p", "`#include <stdio.h>` bindet die Standard-Ein- und -Ausgabe ein. Ohne sie kennt der Compiler `printf` nicht."],
+      ["p", "`int main(void)` ist der Einstiegspunkt. Jedes C-Programm startet hier. `int` bedeutet: main gibt am Ende eine Ganzzahl zurück."],
+      ["p", "`printf` schreibt Text auf die Konsole. `\\n` ist ein Zeilenumbruch. `return 0;` meldet dem Betriebssystem, dass alles fehlerfrei lief."],
+      ["tip", "Jede Anweisung endet mit einem Semikolon `;`. Ein vergessenes Semikolon ist der häufigste Anfängerfehler."]
+    ],
+    quiz: [
+      { q: "Wo beginnt die Ausführung eines C-Programms?", opts: ["In der ersten Zeile der Datei", "In der Funktion main", "Bei #include", "In der Funktion start"], a: 1,
+        why: "Der Einstiegspunkt ist immer `main`. `#include` wird vorher vom Präprozessor verarbeitet, ist aber kein ausgeführter Code." },
+      { q: "Was gibt dieser Code aus?", code: R`printf("A");
+printf("B\n");`, opts: ["A und B in zwei Zeilen", "AB", "A B", "Nichts, es fehlt return"], a: 1,
+        why: "`printf` fügt nicht automatisch einen Zeilenumbruch ein. Erst das `\\n` nach B beendet die Zeile." },
+      { q: "Was fehlt in diesem Programm?", code: R`#include <stdio.h>
+int main(void) {
+    printf("Hi\n")
+    return 0;
+}`, opts: ["Ein Semikolon nach printf(...)", "Geschweifte Klammern um return", "Ein zweites #include", "Nichts, der Code ist korrekt"], a: 0,
+        why: "Nach dem Aufruf von `printf` fehlt das Semikolon. Der Compiler meldet den Fehler oft erst in der nächsten Zeile." }
+    ],
+    task: { prompt: "Gib zwei Zeilen aus: `Ich lerne C` und darunter `Level 1`.", starter: R`#include <stdio.h>
+
+int main(void) {
+    // dein Code hier
+
+    return 0;
+}`, expect: "Ich lerne C\nLevel 1" }
+  },
+  {
+    id: "c2", level: 1, title: "Variablen und Datentypen", mins: 8,
+    body: [
+      ["p", "Eine Variable ist ein benannter Speicherplatz. In C legst du vorher fest, welchen Typ sie hat. Der Typ bestimmt, wie viel Speicher belegt wird und welche Werte erlaubt sind."],
+      ["code", R`int alter = 17;          // Ganzzahl
+double preis = 4.99;     // Kommazahl, doppelte Genauigkeit
+char note = 'A';         // einzelnes Zeichen
+
+printf("Alter: %d\n", alter);
+printf("Preis: %.2f Euro\n", preis);
+printf("Note: %c\n", note);`],
+      ["p", "Platzhalter in `printf`: `%d` für int, `%f` für float und double (`%.2f` zeigt zwei Nachkommastellen), `%c` für ein Zeichen und `%s` für Text."],
+      ["p", "Typische Größen auf heutigen PCs: `char` 1 Byte, `int` 4 Byte, `double` 8 Byte. Mit `sizeof(int)` fragst du die Größe ab."],
+      ["tip", "Ganzzahl-Division schneidet ab: `7 / 2` ergibt `3`, nicht `3.5`. Erst `7 / 2.0` liefert `3.5`, weil dann ein Operand eine Kommazahl ist."]
+    ],
+    quiz: [
+      { q: "Welcher Platzhalter gibt einen int aus?", opts: ["%f", "%c", "%d", "%s"], a: 2, why: "`%d` steht für eine Dezimalzahl vom Typ int." },
+      { q: "Was gibt dieser Code aus?", code: R`int a = 7;
+int b = 2;
+printf("%d", a / b);`, opts: ["3.5", "3", "4", "3.0"], a: 1,
+        why: "Beide Operanden sind int, also wird ganzzahlig geteilt und der Rest abgeschnitten." },
+      { q: "Welche Deklaration speichert ein einzelnes Zeichen korrekt?", opts: ["char c = \"A\";", "char c = 'A';", "string c = 'A';", "chr c = A;"], a: 1,
+        why: "Einzelne Zeichen stehen in einfachen Anführungszeichen. Doppelte Anführungszeichen erzeugen einen String, also ein char-Array." }
+    ],
+    task: { prompt: "Lege `int stunden = 3` und `double lohn = 12.5` an. Gib das Produkt mit zwei Nachkommastellen aus: `Verdienst: 37.50`.", starter: R`#include <stdio.h>
+
+int main(void) {
+    int stunden = 3;
+    double lohn = 12.5;
+    // berechne und gib aus
+
+    return 0;
+}`, expect: "Verdienst: 37.50" }
+  },
+  {
+    id: "c3", level: 1, title: "Bedingungen", mins: 8,
+    body: [
+      ["p", "Mit `if` trifft dein Programm Entscheidungen. Eine Bedingung gilt in C als wahr, wenn ihr Wert ungleich 0 ist."],
+      ["code", R`int punkte = 72;
+
+if (punkte >= 90) {
+    printf("Sehr gut\n");
+} else if (punkte >= 50) {
+    printf("Bestanden\n");
+} else {
+    printf("Nicht bestanden\n");
+}`],
+      ["p", "Vergleichsoperatoren: `==` gleich, `!=` ungleich, `<`, `>`, `<=`, `>=`. Logisch verknüpfst du mit `&&` (und), `||` (oder) und `!` (nicht)."],
+      ["p", "Der Modulo-Operator `%` liefert den Rest einer Division. `n % 2 == 0` prüft, ob n gerade ist."],
+      ["tip", "`if (x = 5)` ist kein Vergleich, sondern eine Zuweisung. Sie ist immer wahr, weil 5 ungleich 0 ist. Für Vergleiche immer `==` verwenden."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`int x = 0;
+if (x = 5) {
+    printf("ja");
+} else {
+    printf("nein");
+}`, opts: ["nein", "ja", "Compilerfehler", "Nichts"], a: 1,
+        why: "`x = 5` weist 5 zu und hat selbst den Wert 5. Alles ungleich 0 gilt als wahr." },
+      { q: "Was ergibt `17 % 5`?", opts: ["3", "2", "3.4", "5"], a: 1, why: "17 = 3 · 5 + 2. Der Rest ist 2." },
+      { q: "Welche Bedingung ist wahr, wenn a zwischen 1 und 10 liegt (beide eingeschlossen)?", opts: ["a >= 1 || a <= 10", "1 <= a <= 10", "a >= 1 && a <= 10", "a > 1 && a < 10"], a: 2,
+        why: "`||` wäre fast immer wahr. `1 <= a <= 10` kompiliert zwar, vergleicht aber erst `1 <= a` (0 oder 1) und dann dieses Ergebnis mit 10, ist also immer wahr." }
+    ],
+    task: { prompt: "Prüfe die Zahl `n = 14`: Gib `gerade` aus, wenn sie gerade ist, sonst `ungerade`.", starter: R`#include <stdio.h>
+
+int main(void) {
+    int n = 14;
+
+    return 0;
+}`, expect: "gerade" }
+  },
+  {
+    id: "c4", level: 1, title: "Schleifen", mins: 9,
+    body: [
+      ["p", "Schleifen wiederholen Code. `for` nimmst du, wenn die Anzahl der Durchläufe feststeht, `while`, wenn eine Bedingung entscheidet."],
+      ["code", R`for (int i = 1; i <= 5; i++) {
+    printf("%d ", i);
+}
+printf("\n");
+
+int n = 1;
+while (n < 100) {
+    n = n * 3;
+}
+printf("n = %d\n", n);`],
+      ["p", "Die `for`-Zeile hat drei Teile: Start (`int i = 1`), Bedingung (`i <= 5`) und Schritt (`i++`). Das Beispiel gibt `1 2 3 4 5` aus, danach `n = 243`."],
+      ["p", "`break` beendet die Schleife sofort, `continue` springt zum nächsten Durchlauf. `do { ... } while (...);` läuft mindestens einmal, weil die Bedingung erst am Ende geprüft wird."],
+      ["tip", "Vergisst du in einer `while`-Schleife, die Variable zu ändern, läuft das Programm endlos. Die Live-Umgebung bricht nach einigen Sekunden ab."]
+    ],
+    quiz: [
+      { q: "Wie oft läuft diese Schleife?", code: R`for (int i = 0; i < 10; i += 3) {
+    // ...
+}`, opts: ["3-mal", "4-mal", "10-mal", "Endlos"], a: 1, why: "i nimmt 0, 3, 6 und 9 an. Bei 12 ist die Bedingung falsch." },
+      { q: "Was gibt dieser Code aus?", code: R`for (int i = 0; i < 5; i++) {
+    if (i == 2) continue;
+    if (i == 4) break;
+    printf("%d", i);
+}`, opts: ["0123", "013", "01234", "0134"], a: 1, why: "Bei 2 wird übersprungen, bei 4 abgebrochen. Übrig bleiben 0, 1 und 3." },
+      { q: "Welche Schleife läuft garantiert mindestens einmal?", opts: ["for", "while", "do-while", "keine"], a: 2, why: "`do-while` prüft die Bedingung erst nach dem ersten Durchlauf." }
+    ],
+    task: { prompt: "Berechne mit einer Schleife die Summe der Zahlen von 1 bis 100 und gib `Summe: 5050` aus.", starter: R`#include <stdio.h>
+
+int main(void) {
+    int summe = 0;
+
+    return 0;
+}`, expect: "Summe: 5050" }
+  },
+  {
+    id: "c5", level: 2, title: "Funktionen", mins: 10,
+    body: [
+      ["p", "Funktionen bündeln Code unter einem Namen. Sie nehmen Parameter entgegen und geben einen Wert zurück. So wird Code wiederverwendbar und einzeln testbar."],
+      ["code", R`#include <stdio.h>
+
+int quadrat(int x) {
+    return x * x;
+}
+
+void begruesse(char name[]) {
+    printf("Hallo %s!\n", name);
+}
+
+int main(void) {
+    printf("%d\n", quadrat(7));
+    begruesse("Mia");
+    return 0;
+}`],
+      ["p", "`void` heißt: kein Rückgabewert. Steht eine Funktion unterhalb von `main`, brauchst du oben einen Prototyp wie `int quadrat(int x);`, damit der Compiler sie schon kennt."],
+      ["tip", "C übergibt Parameter **per Wert**: Die Funktion bekommt eine Kopie. Änderst du den Parameter, bleibt die Variable des Aufrufers unverändert. Für echte Änderungen brauchst du Zeiger."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`void verdopple(int x) {
+    x = x * 2;
+}
+
+int main(void) {
+    int a = 5;
+    verdopple(a);
+    printf("%d", a);
+}`, opts: ["10", "5", "0", "Compilerfehler"], a: 1, why: "`verdopple` ändert nur seine Kopie. `a` bleibt 5." },
+      { q: "Was ist ein Funktionsprototyp?", opts: ["Eine Funktion ohne Rückgabewert", "Die Deklaration der Signatur vor der Definition", "Eine Funktion in einer anderen Datei", "Ein Makro"], a: 1,
+        why: "Ein Prototyp wie `int max(int a, int b);` sagt dem Compiler Name, Parameter und Rückgabetyp, bevor die Funktion definiert ist." },
+      { q: "Welcher Rückgabetyp passt zu einer Funktion, die nur etwas ausgibt?", opts: ["int", "void", "null", "char"], a: 1, why: "`void` bedeutet, dass nichts zurückgegeben wird." }
+    ],
+    task: { prompt: "Schreibe `int max(int a, int b)`, die die größere Zahl zurückgibt. `max(8, 13)` soll `13` ausgeben.", starter: R`#include <stdio.h>
+
+int max(int a, int b) {
+    // dein Code
+}
+
+int main(void) {
+    printf("%d\n", max(8, 13));
+    return 0;
+}`, expect: "13" }
+  },
+  {
+    id: "c6", level: 2, title: "Arrays und Strings", mins: 10,
+    body: [
+      ["p", "Ein Array speichert mehrere Werte desselben Typs direkt hintereinander im Speicher. Der Index beginnt bei 0."],
+      ["code", R`int zahlen[5] = {4, 8, 15, 16, 23};
+int summe = 0;
+
+for (int i = 0; i < 5; i++) {
+    summe += zahlen[i];
+}
+printf("Summe: %d\n", summe);
+
+char wort[] = "Code";   // 5 Bytes: C o d e \0
+printf("%s hat %d Zeichen\n", wort, (int)strlen(wort));`],
+      ["p", "Strings sind in C einfache `char`-Arrays, die mit dem Nullzeichen `'\\0'` enden. `strlen` aus `<string.h>` zählt die Zeichen bis zu diesem Ende."],
+      ["tip", "C prüft keine Array-Grenzen. `zahlen[5]` liest hinter dem Ende: undefiniertes Verhalten und eine der häufigsten Ursachen für Sicherheitslücken."]
+    ],
+    quiz: [
+      { q: "Welcher Index gehört zum letzten Element von `int a[10]`?", opts: ["10", "9", "11", "-1"], a: 1, why: "Indizes laufen von 0 bis 9." },
+      { q: "Wie viele Bytes belegt `char s[] = \"Hi\";`?", opts: ["2", "3", "4", "1"], a: 1, why: "H, i und das abschließende `\\0`." },
+      { q: "Was gibt dieser Code aus?", code: R`char s[] = "Katze";
+s[0] = 'T';
+printf("%s", s);`, opts: ["Katze", "Tatze", "T", "Fehler: Strings sind unveränderlich"], a: 1,
+        why: "Ein mit `[]` angelegtes Array ist eine veränderbare Kopie. Nur String-Literale über `char *` darf man nicht ändern." }
+    ],
+    task: { prompt: "Finde das größte Element im Array `{3, 41, 7, 29, 12}` und gib `Maximum: 41` aus.", starter: R`#include <stdio.h>
+
+int main(void) {
+    int werte[5] = {3, 41, 7, 29, 12};
+
+    return 0;
+}`, expect: "Maximum: 41" }
+  },
+  {
+    id: "c7", level: 2, title: "Zeiger", mins: 12,
+    body: [
+      ["p", "Ein Zeiger speichert eine Speicheradresse. `&x` liefert die Adresse von x, `*p` greift auf den Wert an dieser Adresse zu. Das nennt man Dereferenzieren."],
+      ["code", R`int wert = 42;
+int *p = &wert;       // p zeigt auf wert
+
+printf("%d\n", *p);   // 42
+*p = 99;              // ändert wert über den Zeiger
+printf("%d\n", wert); // 99`],
+      ["p", "Mit Zeigern kann eine Funktion Variablen des Aufrufers verändern:"],
+      ["code", R`void tausche(int *a, int *b) {
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+// Aufruf: tausche(&x, &y);`, { run: false }],
+      ["p", "Arrays und Zeiger hängen eng zusammen: Der Name eines Arrays steht für einen Zeiger auf sein erstes Element. `arr[i]` ist dasselbe wie `*(arr + i)`."],
+      ["tip", "Ein nicht initialisierter Zeiger zeigt irgendwohin. Setze Zeiger ohne Ziel auf `NULL` und prüfe vor dem Dereferenzieren."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`int a = 3;
+int *p = &a;
+*p = *p + 4;
+printf("%d", a);`, opts: ["3", "7", "4", "Eine Adresse"], a: 1, why: "`*p` ist `a`. Also wird `a` auf 3 + 4 gesetzt." },
+      { q: "Was ist `*(arr + 2)` bei `int arr[] = {5, 6, 7, 8};`?", opts: ["5", "6", "7", "8"], a: 2, why: "`*(arr + 2)` ist `arr[2]`, das dritte Element." },
+      { q: "Was speichert `int *p`?", opts: ["Eine Ganzzahl", "Die Adresse eines int", "Ein Array von int", "Den Typ int"], a: 1, why: "Der Stern in der Deklaration macht p zu einem Zeiger auf int." }
+    ],
+    task: { prompt: "Ergänze `tausche`, sodass `x=2, y=1` ausgegeben wird.", starter: R`#include <stdio.h>
+
+void tausche(int *a, int *b) {
+    // tausche die Werte
+}
+
+int main(void) {
+    int x = 1, y = 2;
+    tausche(&x, &y);
+    printf("x=%d, y=%d\n", x, y);
+    return 0;
+}`, expect: "x=2, y=1" }
+  },
+  {
+    id: "c8", level: 3, title: "Structs und dynamischer Speicher", mins: 14,
+    body: [
+      ["p", "Mit `struct` fasst du zusammengehörige Daten zu einem eigenen Typ zusammen."],
+      ["code", R`struct Punkt {
+    int x;
+    int y;
+};
+
+struct Punkt p;
+p.x = 3;
+p.y = 4;
+printf("(%d, %d)\n", p.x, p.y);
+
+struct Punkt *pp = &p;   // Zeiger auf das Struct
+pp->x = 10;
+printf("(%d, %d)\n", p.x, p.y);`],
+      ["p", "Steht die Größe erst zur Laufzeit fest, holst du Speicher mit `malloc` vom Heap. Was du anforderst, gibst du mit `free` zurück."],
+      ["code", R`int n = 5;
+int *feld = (int *)malloc(n * sizeof(int));
+if (feld == NULL) {
+    return 1;   // kein Speicher bekommen
+}
+for (int i = 0; i < n; i++) {
+    feld[i] = i * i;
+}
+printf("%d\n", feld[4]);   // 16
+free(feld);
+feld = NULL;`],
+      ["p", "Über einen Zeiger auf ein Struct greifst du mit `->` zu: `pp->x` ist die Kurzform von `(*pp).x`."],
+      ["tip", "Drei klassische Fehler: Speicherleck (free vergessen), Use-after-free (nach free weiterbenutzen) und doppeltes free. Valgrind oder AddressSanitizer finden sie."]
+    ],
+    quiz: [
+      { q: "Was liefert `malloc`, wenn kein Speicher verfügbar ist?", opts: ["Einen Block mit 0 Bytes", "NULL", "Es stürzt immer ab", "-1"], a: 1, why: "Deshalb prüft man das Ergebnis von `malloc` immer auf `NULL`." },
+      { q: "Wie greifst du über `pp` auf x zu?", code: R`struct Punkt p = {3, 4};
+struct Punkt *pp = &p;`, opts: ["pp.x", "pp->x", "*pp.x", "&pp->x"], a: 1,
+        why: "`*pp.x` wird als `*(pp.x)` gelesen, weil `.` stärker bindet als `*`. Richtig wäre `(*pp).x` oder kurz `pp->x`." },
+      { q: "Was passiert, wenn du `free` vergisst?", opts: ["Compilerfehler", "Ein Speicherleck bis zum Programmende", "Der Speicher wird sofort automatisch freigegeben", "Der Zeiger wird NULL"], a: 1,
+        why: "C hat keine automatische Speicherbereinigung. Langlebige Programme wachsen dann immer weiter." }
+    ],
+    task: { prompt: "Reserviere mit `malloc` Platz für 6 int, fülle sie mit `i * 2` und gib die Summe aus: `Summe: 30`. Vergiss `free` nicht.", starter: R`#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    int n = 6;
+    int *feld = (int *)malloc(n * sizeof(int));
+
+    return 0;
+}`, expect: "Summe: 30" }
+  },
+  {
+    id: "c9", level: 3, title: "Bitoperationen und undefiniertes Verhalten", mins: 14,
+    body: [
+      ["p", "Bitoperatoren arbeiten direkt auf den Binärstellen: `&` (und), `|` (oder), `^` (exklusiv-oder), `~` (invertieren), `<<` und `>>` (schieben)."],
+      ["code", R`unsigned int flags = 0;
+flags |= (1 << 2);        // Bit 2 setzen   -> 0100
+flags |= (1 << 0);        // Bit 0 setzen   -> 0101
+if (flags & (1 << 2)) {
+    printf("Bit 2 ist an\n");
+}
+flags &= ~(1 << 2);       // Bit 2 löschen  -> 0001
+printf("%d\n", flags);    // 1`],
+      ["p", "`x << n` entspricht `x · 2ⁿ`, solange nichts überläuft. Bitmasken stecken in Hardware-Registern, Dateirechten unter Linux und kompakten Datenstrukturen."],
+      ["p", "**Undefiniertes Verhalten** heißt: Der C-Standard schreibt nichts vor. Das Programm darf alles tun, auch scheinbar funktionieren. Typische Ursachen: Überlauf bei vorzeichenbehafteten Ganzzahlen, Zugriff außerhalb von Arrays, nicht initialisierte Variablen, Dereferenzieren von `NULL` und Ausdrücke wie `i = i++ + 1;`."],
+      ["tip", "Kompiliere eigene Projekte mit `gcc -Wall -Wextra -fsanitize=address,undefined`. Dann warnen Compiler und Laufzeit vor vielen dieser Fehler."]
+    ],
+    quiz: [
+      { q: "Was ergibt `5 & 3`?", opts: ["7", "1", "6", "2"], a: 1, why: "0101 & 0011 = 0001, also 1." },
+      { q: "Was ergibt `1 << 4`?", opts: ["4", "5", "16", "8"], a: 2, why: "Einmal um 4 Stellen nach links geschoben: 1 · 2⁴ = 16." },
+      { q: "Welcher Ausdruck ist undefiniertes Verhalten?", opts: ["unsigned int u = 4294967295u; u = u + 1;", "int i = INT_MAX; i = i + 1;", "int a = 7 % 3;", "char c = 'a' + 1;"], a: 1,
+        why: "Überlauf bei unsigned ist definiert und rechnet modulo 2ⁿ. Überlauf bei signed int ist undefiniert." }
+    ],
+    task: { prompt: "Gib `5 ^ 3` und `12 >> 2` aus, jeweils in einer eigenen Zeile.", starter: R`#include <stdio.h>
+
+int main(void) {
+
+    return 0;
+}`, expect: "6\n3" }
+  }
+  ]
+},
+
+py: {
+  name: "Python", file: "main.py",
+  intro: "Python ist leicht zu lesen und trotzdem ein Profi-Werkzeug: für Automatisierung, Datenanalyse, KI und Webserver.",
+  starter: R`name = "Codepfad"
+for i in range(3):
+    print(f"{i + 1}. Hallo von {name}!")`,
+  lessons: [
+  {
+    id: "p1", level: 1, title: "Ausgabe und Variablen", mins: 6,
+    body: [
+      ["p", "Python wird Zeile für Zeile von einem Interpreter ausgeführt. Die Syntax ist knapp und gut lesbar, darum eignet sich Python ideal zum Einstieg."],
+      ["code", R`print("Hallo, Welt!")
+
+name = "Ada"
+alter = 36
+print(name, "ist", alter, "Jahre alt")
+print(f"{name} wird nächstes Jahr {alter + 1}")`],
+      ["p", "Variablen brauchen keine Typangabe: Python erkennt den Typ am Wert. `print` trennt mehrere Argumente mit einem Leerzeichen. Ein f-String wie `f\"{name}\"` setzt Ausdrücke in geschweiften Klammern direkt ein."],
+      ["tip", "Kommentare beginnen mit `#`. Variablennamen schreibt man in Python klein_mit_unterstrich (snake_case)."]
+    ],
+    quiz: [
+      { q: "Was gibt dieser Code aus?", code: R`print("a", "b", sep="-")`, opts: ["a b", "a-b", "ab", "-a-b-"], a: 1, why: "`sep` legt das Trennzeichen zwischen den Argumenten fest." },
+      { q: "Was gibt dieser Code aus?", code: R`x = 5
+x = x * 2 + 1
+print(x)`, opts: ["11", "15", "10", "7"], a: 0, why: "Punkt vor Strich: 5 · 2 + 1 = 11." },
+      { q: "Welche Zeile ist ein gültiger f-String?", opts: ["f\"Wert: {x}\"", "\"Wert: {x}\"f", "f(Wert: x)", "\"Wert: \" + {x}"], a: 0, why: "Das `f` steht direkt vor dem Anführungszeichen." }
+    ],
+    task: { prompt: "Lege `stadt = \"Berlin\"` und `einwohner = 3.7` an und gib mit einem f-String `Berlin hat 3.7 Mio. Einwohner` aus.", starter: R`stadt = "Berlin"
+einwohner = 3.7
+`, expect: "Berlin hat 3.7 Mio. Einwohner" }
+  },
+  {
+    id: "p2", level: 1, title: "Datentypen und Eingabe", mins: 8,
+    body: [
+      ["p", "Die wichtigsten Grundtypen: `int` (Ganzzahl), `float` (Kommazahl), `str` (Text) und `bool` (`True` oder `False`). Mit `type(x)` siehst du den Typ eines Werts."],
+      ["code", R`a = 7
+b = 2
+print(a / b)    # 3.5  echte Division
+print(a // b)   # 3    ganzzahlige Division
+print(a % b)    # 1    Rest
+print(a ** b)   # 49   Potenz
+
+eingabe = input("Zahl: ")   # liefert immer str
+zahl = int(eingabe)
+print(zahl * 2)`, { stdin: "21" }],
+      ["p", "`input()` gibt immer einen String zurück. Zum Rechnen wandelst du ihn mit `int()` oder `float()` um. In der Live-Umgebung trägst du Eingaben ins Feld **Eingabe** ein, eine pro Zeile."],
+      ["tip", "`\"3\" + \"4\"` ergibt `\"34\"`, nicht 7. Strings werden mit `+` aneinandergehängt."]
+    ],
+    quiz: [
+      { q: "Was ergibt `7 // 2`?", opts: ["3.5", "3", "4", "1"], a: 1, why: "`//` teilt ganzzahlig und rundet nach unten." },
+      { q: "Die Eingabe ist 5. Was wird ausgegeben?", code: R`x = input()
+print(x * 3)`, opts: ["15", "555", "Fehler", "5 5 5"], a: 1, why: "x ist der String \"5\". Ein String mal 3 wiederholt ihn dreimal." },
+      { q: "Welchen Typ hat `True`?", opts: ["str", "int", "bool", "NoneType"], a: 2, why: "`True` und `False` sind die beiden Werte vom Typ bool." }
+    ],
+    task: { prompt: "Lies zwei Zahlen mit `input()` ein und gib ihre Summe aus. Mit den Eingaben 12 und 30 soll `42` herauskommen.", starter: R`a = input()
+b = input()
+`, stdin: "12\n30", expect: "42" }
+  },
+  {
+    id: "p3", level: 1, title: "Bedingungen", mins: 7,
+    body: [
+      ["p", "Python nutzt Einrückung statt geschweifter Klammern: Alles, was nach dem Doppelpunkt eingerückt ist, gehört zum Block. Üblich sind 4 Leerzeichen."],
+      ["code", R`temperatur = 23
+
+if temperatur > 30:
+    print("Heiß")
+elif temperatur > 18:
+    print("Angenehm")
+else:
+    print("Kalt")`],
+      ["p", "Logische Operatoren werden ausgeschrieben: `and`, `or`, `not`. Vergleiche lassen sich verketten: `0 < x < 10`."],
+      ["tip", "Leere Werte gelten als falsch: `0`, `\"\"`, `[]`, `{}` und `None`. Statt `if len(liste) > 0:` schreibst du kurz `if liste:`."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`x = 15
+if x > 10:
+    print("A")
+elif x > 5:
+    print("B")
+else:
+    print("C")`, opts: ["A", "B", "A und B", "C"], a: 0, why: "Nur der erste zutreffende Zweig läuft, auch wenn spätere ebenfalls passen würden." },
+      { q: "Ist `0 < 5 < 3` in Python wahr?", opts: ["Ja", "Nein", "Syntaxfehler", "Hängt vom Typ ab"], a: 1, why: "Verkettete Vergleiche bedeuten `0 < 5 and 5 < 3`. Der zweite Teil ist falsch." },
+      { q: "Was ist an diesem Code falsch?", code: R`if True:
+print("ja")`, opts: ["Es fehlt eine Klammer", "Die Einrückung fehlt", "True muss klein geschrieben werden", "Nichts"], a: 1, why: "Ohne Einrückung gehört `print` nicht zum if-Block. Python meldet einen IndentationError." }
+    ],
+    task: { prompt: "Setze `jahr = 2024`. Gib `Schaltjahr` aus, wenn das Jahr durch 4, aber nicht durch 100 teilbar ist, oder wenn es durch 400 teilbar ist. Sonst `Kein Schaltjahr`.", starter: R`jahr = 2024
+`, expect: "Schaltjahr" }
+  },
+  {
+    id: "p4", level: 1, title: "Schleifen", mins: 8,
+    body: [
+      ["code", R`for i in range(1, 6):
+    print(i, end=" ")
+print()
+
+for buchstabe in "Code":
+    print(buchstabe)
+
+n = 1
+while n < 100:
+    n *= 3
+print(n)   # 243`],
+      ["p", "`range(start, stop, schritt)` zählt von start bis **ausschließlich** stop. `for` läuft über jede Sammlung: Strings, Listen, Dictionaries."],
+      ["p", "`break` und `continue` funktionieren wie in anderen Sprachen. Eine Besonderheit: Schleifen dürfen einen `else`-Block haben, der läuft, wenn kein `break` kam."],
+      ["tip", "Brauchst du Index und Wert, nimm `for i, wert in enumerate(liste):` statt `range(len(liste))`."]
+    ],
+    quiz: [
+      { q: "Welche Zahlen erzeugt `range(2, 10, 3)`?", opts: ["2, 5, 8", "2, 5, 8, 11", "3, 6, 9", "2, 4, 6, 8"], a: 0, why: "Start 2, Schritt 3, Ende vor 10." },
+      { q: "Was wird ausgegeben?", code: R`summe = 0
+for i in range(4):
+    summe += i
+print(summe)`, opts: ["10", "6", "4", "3"], a: 1, why: "`range(4)` liefert 0, 1, 2, 3. Die Summe ist 6." },
+      { q: "Was wird ausgegeben?", code: R`for i in range(3):
+    if i == 5:
+        break
+else:
+    print("fertig")`, opts: ["fertig", "Nichts", "0 1 2", "Fehler"], a: 0, why: "Die Schleife endet ohne `break`, also läuft der `else`-Block." }
+    ],
+    task: { prompt: "Gib die Siebenerreihe in einer Zeile aus, getrennt durch Leerzeichen: `7 14 21 28 35 42 49 56 63 70`.", starter: R`for i in range(1, 11):
+    pass
+`, expect: "7 14 21 28 35 42 49 56 63 70" }
+  },
+  {
+    id: "p5", level: 2, title: "Listen und Dictionaries", mins: 10,
+    body: [
+      ["code", R`farben = ["rot", "grün", "blau"]
+farben.append("gelb")
+print(farben[0], farben[-1])   # rot gelb
+print(farben[1:3])             # ['grün', 'blau']
+print(len(farben))             # 4
+
+alter = {"Ada": 36, "Linus": 54}
+alter["Grace"] = 85
+for name in sorted(alter):
+    print(name, alter[name])`],
+      ["p", "Listen sind geordnet und veränderbar. Der Index beginnt bei 0, negative Indizes zählen von hinten. `liste[a:b]` liefert eine Teilliste von a bis ausschließlich b."],
+      ["p", "Dictionaries speichern Schlüssel-Wert-Paare und finden einen Wert über den Schlüssel sehr schnell. `d.get(k, standard)` vermeidet einen Fehler, wenn der Schlüssel fehlt."],
+      ["tip", "`b = a` kopiert eine Liste nicht: Beide Namen zeigen auf dieselbe Liste. Eine echte Kopie bekommst du mit `a.copy()` oder `a[:]`."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)`, opts: ["[1, 2, 3]", "[1, 2, 3, 4]", "[4]", "Fehler"], a: 1, why: "a und b sind zwei Namen für dieselbe Liste." },
+      { q: "Was liefert `[10, 20, 30, 40][-2]`?", opts: ["20", "30", "40", "Fehler"], a: 1, why: "-1 ist das letzte Element, -2 das vorletzte." },
+      { q: "Was wird ausgegeben?", code: R`d = {"x": 1}
+print(d.get("y", 0))`, opts: ["None", "0", "KeyError", "1"], a: 1, why: "`get` liefert den Standardwert 0, weil \"y\" fehlt." }
+    ],
+    task: { prompt: "Zähle, wie oft jedes Wort in `woerter` vorkommt. Gib dann alphabetisch sortiert je Zeile Wort und Anzahl aus: `a 3`, `b 2`, `c 1`.", starter: R`woerter = ["a", "b", "a", "c", "a", "b"]
+zaehler = {}
+`, expect: "a 3\nb 2\nc 1" }
+  },
+  {
+    id: "p6", level: 2, title: "Funktionen", mins: 10,
+    body: [
+      ["code", R`def flaeche(breite, hoehe=1):
+    """Berechnet die Fläche eines Rechtecks."""
+    return breite * hoehe
+
+print(flaeche(4, 5))               # 20
+print(flaeche(4))                  # 4, hoehe nutzt den Standardwert
+print(flaeche(hoehe=2, breite=3))  # 6
+
+def min_max(zahlen):
+    return min(zahlen), max(zahlen)
+
+klein, gross = min_max([4, 9, 1])
+print(klein, gross)                # 1 9`],
+      ["p", "`def` definiert eine Funktion. Parameter können Standardwerte haben und per Name übergeben werden. Mehrere Rückgabewerte sind in Wahrheit ein Tupel, das du direkt entpacken kannst."],
+      ["p", "`*args` sammelt beliebig viele Positionsargumente, `**kwargs` beliebig viele benannte Argumente."],
+      ["tip", "Nutze nie eine Liste als Standardwert (`def f(x=[])`). Sie wird nur einmal erzeugt und zwischen allen Aufrufen geteilt. Schreibe `x=None` und lege die Liste in der Funktion an."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`def f(a, b=2):
+    return a * b
+print(f(3), f(3, 3))`, opts: ["6 9", "5 6", "3 9", "Fehler"], a: 0, why: "f(3) nutzt b=2, f(3, 3) überschreibt b." },
+      { q: "Was wird ausgegeben?", code: R`def add(*zahlen):
+    return sum(zahlen)
+print(add(1, 2, 3))`, opts: ["6", "(1, 2, 3)", "Fehler", "1"], a: 0, why: "`*zahlen` sammelt die Argumente in einem Tupel, `sum` addiert es." },
+      { q: "Was gibt eine Funktion ohne `return` zurück?", opts: ["0", "Einen leeren String", "None", "Einen Fehler"], a: 2, why: "Ohne `return` liefert jede Python-Funktion `None`." }
+    ],
+    task: { prompt: "Schreibe `ist_palindrom(wort)`, die `True` liefert, wenn das Wort rückwärts gleich ist (Groß- und Kleinschreibung ignorieren). `print(ist_palindrom(\"Rentner\"))` soll `True` ausgeben.", starter: R`def ist_palindrom(wort):
+    pass
+
+print(ist_palindrom("Rentner"))
+`, expect: "True" }
+  },
+  {
+    id: "p7", level: 3, title: "Klassen und Ausnahmen", mins: 14,
+    body: [
+      ["code", R`class Konto:
+    def __init__(self, inhaber, stand=0):
+        self.inhaber = inhaber
+        self.stand = stand
+
+    def einzahlen(self, betrag):
+        if betrag <= 0:
+            raise ValueError("Betrag muss positiv sein")
+        self.stand += betrag
+
+    def __str__(self):
+        return f"{self.inhaber}: {self.stand} Euro"
+
+k = Konto("Mia")
+k.einzahlen(50)
+print(k)   # Mia: 50 Euro
+
+try:
+    k.einzahlen(-5)
+except ValueError as fehler:
+    print("Abgelehnt:", fehler)`],
+      ["p", "Eine Klasse ist ein Bauplan, ein Objekt eine konkrete Instanz davon. `__init__` richtet das neue Objekt ein, `self` ist das Objekt selbst. Methoden mit doppelten Unterstrichen wie `__str__` steuern eingebautes Verhalten, hier die Ausgabe mit `print`."],
+      ["p", "Vererbung: `class Sparkonto(Konto):` übernimmt alles von Konto. Mit `super().__init__(...)` rufst du den Konstruktor der Elternklasse auf."],
+      ["p", "Fehler signalisierst du mit `raise` und behandelst sie mit `try` und `except`. So bricht das Programm nicht ab, sondern reagiert gezielt."],
+      ["tip", "Fange nur Ausnahmen, die du sinnvoll behandeln kannst. Ein nacktes `except:` versteckt echte Bugs."]
+    ],
+    quiz: [
+      { q: "Wofür steht `self`?", opts: ["Die Klasse", "Das aktuelle Objekt", "Die Elternklasse", "Ein Schlüsselwort ohne Bedeutung"], a: 1, why: "Python übergibt das Objekt, auf dem die Methode aufgerufen wird, als ersten Parameter." },
+      { q: "Was wird ausgegeben?", code: R`class A:
+    def hallo(self):
+        return "A"
+
+class B(A):
+    def hallo(self):
+        return "B" + super().hallo()
+
+print(B().hallo())`, opts: ["B", "A", "BA", "AB"], a: 2, why: "B liefert \"B\" und hängt das Ergebnis der Elternmethode an." },
+      { q: "Welche Methode bestimmt, was `print(obj)` ausgibt?", opts: ["__init__", "__str__ (oder __repr__)", "__print__", "__out__"], a: 1, why: "`print` ruft `str(obj)` auf, also `__str__`. Fehlt sie, wird `__repr__` genutzt." }
+    ],
+    task: { prompt: "Ergänze die Klasse `Rechteck` um eine Methode `flaeche()`. `print(Rechteck(3, 4).flaeche())` soll `12` ausgeben.", starter: R`class Rechteck:
+    def __init__(self, breite, hoehe):
+        self.breite = breite
+        self.hoehe = hoehe
+
+print(Rechteck(3, 4).flaeche())
+`, expect: "12" }
+  },
+  {
+    id: "p8", level: 3, title: "Comprehensions, Generatoren, Lambdas", mins: 12,
+    body: [
+      ["code", R`quadrate = [x * x for x in range(6)]
+gerade = [x for x in quadrate if x % 2 == 0]
+print(gerade)                 # [0, 4, 16]
+
+laengen = {w: len(w) for w in ["py", "code"]}
+print(laengen["code"])        # 4
+
+def zaehle_hoch(n):
+    i = 0
+    while i < n:
+        yield i
+        i += 1
+
+print(sum(zaehle_hoch(5)))    # 10
+
+personen = [("Ada", 36), ("Tim", 20)]
+personen.sort(key=lambda p: p[1])
+print(personen[0][0])         # Tim`],
+      ["p", "Comprehensions bauen Listen, Dictionaries und Sets in einer Zeile. Generatoren mit `yield` liefern Werte erst bei Bedarf und sparen so Speicher, selbst bei Millionen von Elementen."],
+      ["p", "`lambda` erzeugt kleine, namenlose Funktionen, typisch als `key` beim Sortieren oder für `map` und `filter`."],
+      ["tip", "Lesbarkeit geht vor: Wird eine Comprehension länger als eine Zeile oder verschachtelt, ist eine normale Schleife oft besser."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`print([c.upper() for c in "abc" if c != "b"])`, opts: ["['A', 'B', 'C']", "['A', 'C']", "AC", "['a', 'c']"], a: 1, why: "\"b\" wird herausgefiltert, die anderen werden groß geschrieben." },
+      { q: "Was ist der Hauptvorteil eines Generators?", opts: ["Er ist immer schneller", "Werte werden erst bei Bedarf erzeugt", "Er kann Listen sortieren", "Er läuft parallel"], a: 1, why: "Ein Generator hält nie alle Werte gleichzeitig im Speicher." },
+      { q: "Was wird ausgegeben?", code: R`f = lambda x, y: x * y
+print(f(3, 4))`, opts: ["7", "12", "34", "Fehler"], a: 1, why: "Die Lambda-Funktion multipliziert ihre beiden Argumente." }
+    ],
+    task: { prompt: "Erzeuge mit einer Comprehension die Liste aller Zahlen von 1 bis 30, die durch 3 und durch 5 teilbar sind, und gib sie aus: `[15, 30]`.", starter: R`zahlen = []
+print(zahlen)
+`, expect: "[15, 30]" }
+  }
+  ]
+},
+
+js: {
+  name: "JavaScript", file: "main.js",
+  intro: "JavaScript läuft in jedem Browser und mit Node.js auf Servern. Es ist die Sprache des Webs und steckt in fast jeder App.",
+  starter: R`const sprachen = ["C", "Python", "JavaScript"];
+
+for (const s of sprachen) {
+  console.log("Ich lerne " + s);
+}`,
+  lessons: [
+  {
+    id: "j1", level: 1, title: "Ausgabe und Variablen", mins: 6,
+    body: [
+      ["p", "JavaScript läuft in jedem Browser und mit Node.js auch auf Servern. Ausgaben schreibst du mit `console.log`."],
+      ["code", R`console.log("Hallo, Welt!");
+
+const name = "Ada";   // wird nicht neu zugewiesen
+let punkte = 10;      // veränderbar
+punkte = punkte + 5;
+
+console.log(name, "hat", punkte, "Punkte");`],
+      ["p", "Nimm `const` für Werte, die nicht neu zugewiesen werden, und `let` für alles, was sich ändert. Das alte `var` solltest du nicht mehr verwenden, weil es Block-Grenzen ignoriert."],
+      ["tip", "`const` macht nur die Bindung fest, nicht den Inhalt. Ein `const`-Array kannst du trotzdem mit `push` erweitern."]
+    ],
+    quiz: [
+      { q: "Was passiert hier?", code: R`const x = 5;
+x = 6;`, opts: ["x ist danach 6", "TypeError: Zuweisung an eine Konstante", "x bleibt still 5", "Nichts"], a: 1, why: "Eine `const`-Bindung darf nicht neu zugewiesen werden." },
+      { q: "Was wird ausgegeben?", code: R`const liste = [1];
+liste.push(2);
+console.log(liste.length);`, opts: ["1", "2", "Fehler", "undefined"], a: 1, why: "Der Inhalt eines `const`-Arrays ist veränderbar." },
+      { q: "Womit deklarierst du einen Zähler, der sich in einer Schleife ändert?", opts: ["const", "let", "var", "def"], a: 1, why: "`let` ist veränderbar und gilt nur im Block." }
+    ],
+    task: { prompt: "Lege `const vorname = \"Lea\"` und `let alter = 16` an, erhöhe alter um 1 und gib `Lea ist 17` aus.", starter: R`const vorname = "Lea";
+let alter = 16;
+`, expect: "Lea ist 17" }
+  },
+  {
+    id: "j2", level: 1, title: "Typen und Vergleiche", mins: 8,
+    body: [
+      ["code", [
+        "console.log(typeof 42);        // \"number\"",
+        "console.log(typeof \"42\");      // \"string\"",
+        "console.log(typeof true);      // \"boolean\"",
+        "console.log(typeof undefined); // \"undefined\"",
+        "",
+        "console.log(5 == \"5\");   // true  (wandelt Typen um)",
+        "console.log(5 === \"5\");  // false (prüft auch den Typ)",
+        "",
+        "const name = \"Ben\";",
+        "console.log(`Hallo ${name}, 2 + 3 = ${2 + 3}`);"
+      ].join("\n")],
+      ["p", "JavaScript hat einen einzigen Zahlentyp `number` für Ganz- und Kommazahlen. Dazu kommen `string`, `boolean`, `undefined`, `null`, `bigint`, `symbol` und `object`."],
+      ["p", "Nutze immer `===` und `!==`. Der lockere Vergleich `==` wandelt Typen nach schwer merkbaren Regeln um."],
+      ["p", "Template-Strings stehen in Backticks und setzen mit `${...}` Ausdrücke direkt ein."],
+      ["tip", "`0.1 + 0.2` ergibt `0.30000000000000004`. Kommazahlen sind binär nicht exakt darstellbar. Geldbeträge rechnet man deshalb in Cent als Ganzzahl."]
+    ],
+    quiz: [
+      { q: "Was geben die beiden Zeilen aus?", code: R`console.log("5" + 3);
+console.log("5" - 3);`, opts: ["8 und 2", "53 und 2", "53 und NaN", "8 und 8"], a: 1, why: "`+` mit einem String verkettet. `-` gibt es nur für Zahlen, deshalb wird \"5\" umgewandelt." },
+      { q: "Was ergibt `typeof null`?", opts: ["\"null\"", "\"undefined\"", "\"object\"", "\"number\""], a: 2, why: "Ein historischer Fehler in JavaScript, der aus Kompatibilitätsgründen geblieben ist." },
+      { q: "Was ergibt `null == undefined`?", opts: ["true", "false", "TypeError", "null"], a: 0, why: "Beim lockeren Vergleich gelten `null` und `undefined` als gleich. Mit `===` wäre es false." }
+    ],
+    task: { prompt: "Gib mit einem Template-String `3 * 7 = 21` aus. Das Ergebnis 21 soll im String berechnet werden.", starter: R`const a = 3;
+const b = 7;
+`, expect: "3 * 7 = 21" }
+  },
+  {
+    id: "j3", level: 1, title: "Bedingungen und Schleifen", mins: 8,
+    body: [
+      ["code", R`const stunde = 14;
+
+if (stunde < 12) {
+  console.log("Guten Morgen");
+} else if (stunde < 18) {
+  console.log("Guten Tag");
+} else {
+  console.log("Guten Abend");
+}
+
+for (let i = 1; i <= 3; i++) {
+  console.log("Runde", i);
+}
+
+const sprachen = ["C", "Python", "JS"];
+for (const s of sprachen) {
+  console.log(s);
+}`],
+      ["p", "`if`, `for` und `while` sehen aus wie in C. Für Arrays gibt es `for...of`, das direkt über die Werte läuft. `for...in` läuft über die Schlüssel eines Objekts."],
+      ["p", "Der Bedingungsoperator ist eine Kurzform von if/else: `const status = alter >= 18 ? \"volljährig\" : \"minderjährig\";`"],
+      ["tip", "Falsy sind nur `false`, `0`, `\"\"`, `null`, `undefined` und `NaN`. Alles andere ist truthy, auch `\"0\"` und `[]`."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`if ([]) console.log("ja");
+else console.log("nein");`, opts: ["ja", "nein", "Fehler", "undefined"], a: 0, why: "Ein leeres Array ist ein Objekt und damit truthy." },
+      { q: "Was wird ausgegeben?", code: R`for (const x of [10, 20]) {
+  console.log(x);
+}`, opts: ["0 und 1", "10 und 20", "x und x", "Fehler"], a: 1, why: "`for...of` liefert die Werte. `for...in` hätte die Indizes \"0\" und \"1\" geliefert." },
+      { q: "Was wird ausgegeben?", code: R`const n = 7;
+console.log(n % 2 === 0 ? "gerade" : "ungerade");`, opts: ["gerade", "ungerade", "true", "1"], a: 1, why: "7 % 2 ist 1, die Bedingung ist falsch." }
+    ],
+    task: { prompt: "FizzBuzz bis 15: Gib für jede Zahl von 1 bis 15 eine Zeile aus. Bei Vielfachen von 3 `Fizz`, bei Vielfachen von 5 `Buzz`, bei beiden `FizzBuzz`, sonst die Zahl.", starter: R`for (let i = 1; i <= 15; i++) {
+
+}
+`, expect: "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz" }
+  },
+  {
+    id: "j4", level: 2, title: "Funktionen", mins: 9,
+    body: [
+      ["code", R`function begruesse(name = "Gast") {
+  return "Hallo " + name;
+}
+
+const quadrat = (x) => x * x;   // Arrow Function
+const summe = (...zahlen) => zahlen.reduce((a, b) => a + b, 0);
+
+console.log(begruesse());        // Hallo Gast
+console.log(quadrat(9));         // 81
+console.log(summe(1, 2, 3, 4));  // 10`],
+      ["p", "Funktionen sind in JavaScript ganz normale Werte: Du kannst sie in Variablen speichern, als Argument übergeben und zurückgeben."],
+      ["p", "Arrow Functions (`=>`) sind kürzer. Besteht der Körper aus einem einzigen Ausdruck, wird dieser automatisch zurückgegeben."],
+      ["tip", "Arrow Functions haben kein eigenes `this`. Für Objekt-Methoden, die `this` brauchen, nimm die normale Schreibweise."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`const f = (a, b = 10) => a + b;
+console.log(f(5));`, opts: ["5", "15", "NaN", "undefined"], a: 1, why: "b bekommt den Standardwert 10." },
+      { q: "Was wird ausgegeben?", code: R`const verdopple = x => { x * 2 };
+console.log(verdopple(4));`, opts: ["8", "undefined", "4", "Fehler"], a: 1, why: "Mit geschweiften Klammern ist der Körper ein Block. Ohne `return` liefert er `undefined`." },
+      { q: "Was wird ausgegeben?", code: R`function an(f) { return f(3); }
+console.log(an(x => x + 1));`, opts: ["3", "4", "x + 1", "Fehler"], a: 1, why: "Die übergebene Funktion wird mit 3 aufgerufen." }
+    ],
+    task: { prompt: "Schreibe eine Arrow Function `istGerade`, die für gerade Zahlen `true` liefert. Gib `istGerade(10)` und `istGerade(7)` in zwei Zeilen aus.", starter: R`const istGerade = (n) => false;
+
+console.log(istGerade(10));
+console.log(istGerade(7));
+`, expect: "true\nfalse" }
+  },
+  {
+    id: "j5", level: 2, title: "Arrays und Objekte", mins: 11,
+    body: [
+      ["code", R`const noten = [2, 1, 3, 1, 4];
+
+const verdoppelt = noten.map(n => n * 2);     // [4, 2, 6, 2, 8]
+const gut = noten.filter(n => n <= 2);        // [2, 1, 1]
+const schnitt = noten.reduce((a, b) => a + b) / noten.length;
+console.log(verdoppelt, gut, schnitt);
+
+const user = { name: "Ada", stadt: "London", alter: 36 };
+const { name, ...rest } = user;               // Destructuring
+console.log(name, rest);
+const aelter = { ...user, alter: 37 };        // Spread
+console.log(aelter.alter);`],
+      ["p", "`map` wandelt jedes Element um, `filter` behält passende Elemente, `reduce` fasst alles zu einem Wert zusammen. Keine dieser Methoden verändert das Original-Array."],
+      ["p", "Objekte sammeln Eigenschaften unter Namen. Destructuring holt Werte heraus, der Spread-Operator `...` kopiert sie in ein neues Objekt oder Array."],
+      ["tip", "`sort()` sortiert ohne Vergleichsfunktion als Text: `[10, 9, 1].sort()` ergibt `[1, 10, 9]`. Für Zahlen schreibst du `sort((a, b) => a - b)`."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`console.log([1, 2, 3, 4].filter(x => x % 2).map(x => x * 10));`, opts: ["[10, 30]", "[20, 40]", "[10, 20, 30, 40]", "[1, 3]"], a: 0, why: "`x % 2` ist für ungerade Zahlen 1 (truthy). Übrig bleiben 1 und 3, mal 10." },
+      { q: "Was wird ausgegeben?", code: R`const { a, b = 5 } = { a: 1 };
+console.log(a + b);`, opts: ["1", "6", "NaN", "undefined"], a: 1, why: "b fehlt im Objekt und bekommt den Standardwert 5." },
+      { q: "Was ergibt `[10, 9, 1].sort()`?", opts: ["[1, 9, 10]", "[10, 9, 1]", "[1, 10, 9]", "[9, 10, 1]"], a: 2, why: "Als Text verglichen kommt \"10\" vor \"9\"." }
+    ],
+    task: { prompt: "Berechne mit `reduce` die Summe von `preise` und gib `Gesamt: 28` aus.", starter: R`const preise = [4.5, 12, 3, 8.5];
+`, expect: "Gesamt: 28" }
+  },
+  {
+    id: "j6", level: 3, title: "Scope und Closures", mins: 12,
+    body: [
+      ["code", R`function zaehler() {
+  let stand = 0;
+  return function () {
+    stand++;
+    return stand;
+  };
+}
+
+const klick = zaehler();
+console.log(klick()); // 1
+console.log(klick()); // 2
+
+const anderer = zaehler();
+console.log(anderer()); // 1, eigener Zustand`],
+      ["p", "Eine Closure ist eine Funktion, die sich die Variablen ihrer Entstehungsumgebung merkt. `stand` lebt weiter, obwohl `zaehler()` längst beendet ist. So baut man private Zustände, Fabrikfunktionen und Event-Handler."],
+      ["p", "`let` und `const` gelten nur im umgebenden Block `{ }`. Variablen mit `var` gelten in der ganzen Funktion und werden an deren Anfang gezogen (Hoisting)."],
+      ["tip", "Klassiker im Vorstellungsgespräch: `for (var i = 0; i < 3; i++) setTimeout(() => console.log(i));` gibt dreimal `3` aus. Mit `let` bekommt jeder Durchlauf sein eigenes `i`."]
+    ],
+    quiz: [
+      { q: "Was wird ausgegeben?", code: R`function mache(x) {
+  return y => x + y;
+}
+const plus5 = mache(5);
+console.log(plus5(3));`, opts: ["5", "8", "3", "undefined"], a: 1, why: "Die innere Funktion merkt sich x = 5." },
+      { q: "Was wird ausgegeben?", code: R`for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i));
+}`, opts: ["0 1 2", "3 3 3", "2 2 2", "undefined"], a: 1, why: "Alle drei Callbacks teilen sich dasselbe `var i`, das am Ende 3 ist." },
+      { q: "Was wird ausgegeben?", code: R`{
+  let geheim = 1;
+}
+console.log(typeof geheim);`, opts: ["\"number\"", "\"undefined\"", "ReferenceError", "1"], a: 1, why: "Außerhalb des Blocks gibt es `geheim` nicht. `typeof` wirft bei unbekannten Namen keinen Fehler, sondern liefert \"undefined\"." }
+    ],
+    task: { prompt: "Schreibe `erzeugeMultiplikator(faktor)`, die eine Funktion zurückgibt. `erzeugeMultiplikator(3)(14)` soll `42` ergeben.", starter: R`function erzeugeMultiplikator(faktor) {
+
+}
+
+const mal3 = erzeugeMultiplikator(3);
+console.log(mal3(14));
+`, expect: "42" }
+  },
+  {
+    id: "j7", level: 3, title: "Promises und async/await", mins: 14,
+    body: [
+      ["code", R`const warte = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function ablauf() {
+  console.log("Start");
+  await warte(500);
+  console.log("nach 0,5 s");
+  return "fertig";
+}
+
+ablauf().then(ergebnis => console.log(ergebnis));
+console.log("läuft weiter");`],
+      ["p", "JavaScript läuft in einem einzigen Thread. Langsame Aufgaben wie Netzwerkanfragen blockieren ihn nicht, sondern liefern ein Promise: das Versprechen auf einen späteren Wert."],
+      ["p", "`async` markiert eine Funktion, die immer ein Promise zurückgibt. `await` pausiert nur diese Funktion, bis das Promise erfüllt ist. Die Ausgabe oben lautet: `Start`, `läuft weiter`, `nach 0,5 s`, `fertig`."],
+      ["p", "Fehler fängst du mit `try` und `catch` um das `await`. Unabhängige Aufgaben startest du gleichzeitig mit `await Promise.all([...])`."],
+      ["tip", "Event Loop: Zuerst läuft der synchrone Code komplett durch, dann alle Microtasks (Promise-Callbacks), dann Tasks wie `setTimeout`."]
+    ],
+    quiz: [
+      { q: "In welcher Reihenfolge erscheinen die Buchstaben?", code: R`console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve().then(() => console.log("C"));
+console.log("D");`, opts: ["A B C D", "A D C B", "A D B C", "A C D B"], a: 1, why: "Synchron zuerst (A, D), dann die Microtask (C), zuletzt der Timer (B)." },
+      { q: "Was gibt eine `async`-Funktion immer zurück?", opts: ["undefined", "Ein Promise", "Den Wert direkt", "Einen Callback"], a: 1, why: "Auch ein `return 5` wird in ein Promise verpackt." },
+      { q: "Wie wartest du auf zwei unabhängige Promises gleichzeitig?", opts: ["await p1; await p2;", "await Promise.all([p1, p2])", "p1 + p2", "Promise.wait(p1, p2)"], a: 1, why: "`Promise.all` wartet parallel auf alle und liefert ein Array der Ergebnisse." }
+    ],
+    task: { prompt: "Schreibe eine async-Funktion `main`, die `start` ausgibt, mit `warte(200)` wartet und danach `fertig` ausgibt. Rufe sie auf.", starter: R`const warte = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+`, expect: "start\nfertig" }
+  },
+  {
+    id: "j8", level: 3, title: "Klassen und Prototypen", mins: 12,
+    body: [
+      ["code", R`class Tier {
+  #name;                     // privates Feld
+  constructor(name) {
+    this.#name = name;
+  }
+  get name() { return this.#name; }
+  laut() { return "..."; }
+  vorstellen() {
+    return this.name + " sagt " + this.laut();
+  }
+}
+
+class Hund extends Tier {
+  laut() { return "Wuff"; }
+}
+
+console.log(new Hund("Bello").vorstellen()); // Bello sagt Wuff`],
+      ["p", "Klassen sind in JavaScript eine elegantere Schreibweise für Prototypen: Jedes Objekt verweist auf ein Prototyp-Objekt, in dem nach fehlenden Eigenschaften gesucht wird. Das ist die Prototypkette."],
+      ["p", "`extends` erbt, `super(...)` ruft den Elternkonstruktor auf, `#feld` ist wirklich privat, `get` definiert eine berechnete Eigenschaft und `static` gehört zur Klasse selbst statt zu ihren Instanzen."],
+      ["tip", "Bevorzuge Komposition (Objekte enthalten andere Objekte) vor tiefen Vererbungsketten. Zwei bis drei Ebenen reichen fast immer."]
+    ],
+    quiz: [
+      { q: "Was passiert bei `new Hund(\"Rex\").#name` außerhalb der Klasse?", opts: ["Gibt \"Rex\" zurück", "undefined", "SyntaxError", "Gibt \"...\" zurück"], a: 2, why: "Private Felder sind außerhalb der Klasse schon syntaktisch verboten." },
+      { q: "Was bewirkt `super.laut()` in einer Methode von Hund?", opts: ["Ruft laut() der Elternklasse auf", "Ruft laut() doppelt auf", "Erzeugt ein neues Tier", "Ist nicht erlaubt"], a: 0, why: "`super` verweist auf die Methoden der Elternklasse." },
+      { q: "Was wird ausgegeben?", code: R`class A { static info() { return "A"; } }
+console.log(typeof new A().info);`, opts: ["\"function\"", "\"undefined\"", "\"string\"", "Fehler"], a: 1, why: "Statische Methoden gehören zur Klasse (`A.info`), nicht zu den Instanzen." }
+    ],
+    task: { prompt: "Ergänze die Klasse `Kreis` um einen Getter `umfang` (2 · π · r). `new Kreis(1).umfang.toFixed(2)` soll `6.28` ausgeben.", starter: R`class Kreis {
+  constructor(r) {
+    this.r = r;
+  }
+}
+
+console.log(new Kreis(1).umfang.toFixed(2));
+`, expect: "6.28" }
+  }
+  ]
+}
+};
+
+const LANG_ORDER = ["c", "py", "js"];
+
+/* =====================================================================
+   Hilfsfunktionen
+   ===================================================================== */
+const $ = (sel, root = document) => root.querySelector(sel);
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function inline(t) {
+  return esc(t).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+}
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function today() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+
+const KW = {
+  c: new Set("auto break case char const continue default do double else enum extern float for goto if inline int long register return short signed sizeof static struct switch typedef union unsigned void volatile while NULL bool true false".split(" ")),
+  py: new Set("False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield self".split(" ")),
+  js: new Set("async await break case catch class const continue debugger default delete do else export extends false finally for function get if import in instanceof let new null of return set static super switch this throw true try typeof undefined var void while yield".split(" "))
+};
+const RX = {
+  c: /(\/\/.*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(^[ \t]*#\w+)|(\b\d+(?:\.\d+)?[fFuUlL]*\b)|([A-Za-z_]\w*)/gm,
+  py: /(#.*)|([fFrRbB]?"""[\s\S]*?"""|[fFrRbB]?"(?:\\.|[^"\\\n])*"|[fFrRbB]?'(?:\\.|[^'\\\n])*')|(@\w+)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/gm,
+  js: /(\/\/.*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|(#\w+)|(\b\d+(?:\.\d+)?n?\b)|([A-Za-z_$][\w$]*)/gm
+};
+function hl(code, lang) {
+  const rx = new RegExp(RX[lang].source, "gm");
+  const kw = KW[lang];
+  let out = "", last = 0, m;
+  while ((m = rx.exec(code))) {
+    out += esc(code.slice(last, m.index));
+    const t = m[0];
+    let cls = m[1] ? "com" : m[2] ? "str" : m[3] ? "pre" : m[4] ? "num" : kw.has(t) ? "kw" : (/^\s*\(/.test(code.slice(rx.lastIndex, rx.lastIndex + 3)) ? "fn" : "");
+    out += cls ? '<span class="t-' + cls + '">' + esc(t) + "</span>" : esc(t);
+    last = rx.lastIndex;
+  }
+  return out + esc(code.slice(last));
+}
+
+/* Kleiner Markdown-Renderer für Antworten von Claude */
+function md(src) {
+  const parts = String(src).split(/```[^\n]*\n?/);
+  let html = "";
+  parts.forEach((part, i) => {
+    if (i % 2 === 1) { html += "<pre><code>" + esc(part.replace(/\n$/, "")) + "</code></pre>"; return; }
+    const lines = part.split("\n");
+    let list = null, para = [];
+    const flushP = () => { if (para.length) { html += "<p>" + inline(para.join(" ")) + "</p>"; para = []; } };
+    const flushL = () => { if (list) { html += "<" + list.t + ">" + list.items.map(x => "<li>" + inline(x) + "</li>").join("") + "</" + list.t + ">"; list = null; } };
+    for (const raw of lines) {
+      const l = raw.trim();
+      let mm;
+      if (!l) { flushP(); flushL(); continue; }
+      if ((mm = l.match(/^#{1,4}\s+(.*)/))) { flushP(); flushL(); html += "<h4>" + inline(mm[1]) + "</h4>"; continue; }
+      if ((mm = l.match(/^[-*•]\s+(.*)/))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(mm[1]); continue; }
+      if ((mm = l.match(/^\d+[.)]\s+(.*)/))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(mm[1]); continue; }
+      flushL(); para.push(l);
+    }
+    flushP(); flushL();
+  });
+  return html;
+}
+
+/* =====================================================================
+   Fortschritt (lokal + Sync über das Claude-Konto)
+   ===================================================================== */
+const LS_KEY = "codepfad.progress.v1";
+const LS_DRAFT = "codepfad.drafts.v1";
+function blank() { return { done: {}, task: {}, quiz: {}, extra: 0, days: [], lang: "c", updated: 0 }; }
+function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS_KEY)); return v && typeof v === "object" ? Object.assign(blank(), v) : blank(); } catch (e) { return blank(); } }
+function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(P)); } catch (e) {} }
+function merge(a, b) {
+  const r = blank();
+  for (const k of ["done", "task"]) r[k] = Object.assign({}, a[k], b[k]);
+  r.quiz = Object.assign({}, a.quiz);
+  for (const [k, v] of Object.entries(b.quiz || {})) r.quiz[k] = Math.max(r.quiz[k] || 0, v || 0);
+  r.extra = Math.max(a.extra || 0, b.extra || 0);
+  r.days = [...new Set([...(a.days || []), ...(b.days || [])])].sort().slice(-180);
+  const newer = (b.updated || 0) > (a.updated || 0) ? b : a;
+  r.lang = COURSES[newer.lang] ? newer.lang : "c";
+  r.updated = Math.max(a.updated || 0, b.updated || 0);
+  return r;
+}
+let P = loadLocal();
+
+const sync = { ref: null, state: "local", writing: false, dirty: false, timer: null };
+function syncLabel() {
+  return { local: "Nur auf diesem Gerät", synced: "Mit deinem Konto synchronisiert", saving: "Speichert …", error: "Sync fehlgeschlagen, lokal gespeichert" }[sync.state];
+}
+function paintSync() {
+  for (const el of document.querySelectorAll("[data-sync]")) { el.dataset.s = sync.state; const s = el.querySelector("span"); if (s) s.textContent = syncLabel(); }
+  const side = $("#sync-side"); side.dataset.s = sync.state; side.querySelector("span").textContent = syncLabel();
+}
+function touch() {
+  const d = today();
+  if (!P.days.includes(d)) P.days.push(d);
+  P.updated = Date.now();
+  saveLocal();
+  if (!sync.ref) return;
+  clearTimeout(sync.timer);
+  sync.timer = setTimeout(flush, 1200);
+}
+async function flush() {
+  if (!sync.ref) return;
+  if (sync.writing) { sync.dirty = true; return; }
+  sync.writing = true; sync.state = "saving"; paintSync();
+  try {
+    await sync.ref.set(JSON.parse(JSON.stringify(P)));
+    sync.state = "synced";
+  } catch (e) {
+    if (e && (e.code === "invalid_argument" || e.code === "revoked" || e.code === "not_granted")) { sync.ref = null; sync.state = "local"; }
+    else sync.state = "error";
+  }
+  sync.writing = false; paintSync();
+  if (sync.dirty) { sync.dirty = false; flush(); }
+}
+async function initSync() {
+  if (!window.claude || !window.claude.use) return;
+  try {
+    const [user, db] = await Promise.all([window.claude.use("user"), window.claude.use("db")]);
+    if (!user || !db) return;
+    const id = await user.id();
+    if (!id) return;
+    const ref = db.doc("data/users/" + id + "/progress");
+    const snap = await ref.get();
+    sync.ref = ref;
+    sync.state = "synced";
+    if (snap.exists) {
+      const before = JSON.stringify(P);
+      P = merge(P, snap.data());
+      saveLocal();
+      if (JSON.stringify(P) !== before && S.view !== "play") render();
+      if (JSON.stringify(P) !== JSON.stringify(Object.assign(blank(), snap.data()))) flush();
+    } else if (P.updated) {
+      flush();
+    }
+    paintSync();
+  } catch (e) { sync.ref = null; sync.state = "local"; paintSync(); }
+}
+
+/* XP wird aus dem Fortschritt berechnet, damit das Zusammenführen zweier Geräte nie doppelt zählt */
+function xp() {
+  return Object.keys(P.done).length * 15 + Object.keys(P.task).length * 25 + Object.values(P.quiz).filter(v => v === 1).length * 10 + (P.extra || 0) * 10;
+}
+function streak() {
+  const set = new Set(P.days);
+  const d = new Date();
+  if (!set.has(today())) d.setDate(d.getDate() - 1);
+  let n = 0;
+  for (;;) {
+    const k = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    if (!set.has(k)) break;
+    n++; d.setDate(d.getDate() - 1);
+  }
+  return n;
+}
+
+/* =====================================================================
+   Zustand der Oberfläche
+   ===================================================================== */
+const S = {
+  lang: COURSES[P.lang] ? P.lang : "c",
+  view: "path",
+  lessonId: null,
+  answers: {},          // Frage-Schlüssel -> gewählte Option (nur diese Sitzung)
+  quiz: null,           // laufendes Quiz
+  quizLevel: 0,
+  gen: { level: 2, busy: false, error: "" },
+  task: null,           // Übung, die gerade im Editor gelöst wird
+  drafts: (() => { try { return JSON.parse(localStorage.getItem(LS_DRAFT)) || {}; } catch (e) { return {}; } })(),
+  ai: false
+};
+function course() { return COURSES[S.lang]; }
+function lessonById(id) { for (const k of LANG_ORDER) { const l = COURSES[k].lessons.find(x => x.id === id); if (l) return { l, lang: k }; } return null; }
+function draft(lang) { return S.drafts[lang] || { code: COURSES[lang].starter, stdin: "" }; }
+function saveDraft(lang, d) { S.drafts[lang] = d; try { localStorage.setItem(LS_DRAFT, JSON.stringify(S.drafts)); } catch (e) {} }
+
+/* =====================================================================
+   Icons
+   ===================================================================== */
+const I = {
+  path: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2Z"/><path d="M8 7h6M8 11h4"/></svg>',
+  quiz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16"/></svg>',
+  prog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+  next: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+  run: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5Z"/></svg>',
+  spark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"/></svg>'
+};
+const NAV = [["path", "Lernen", I.path], ["quiz", "Quiz", I.quiz], ["play", "Live-Code", I.play], ["prog", "Fortschritt", I.prog]];
+
+/* =====================================================================
+   Rendering
+   ===================================================================== */
+function renderChrome() {
+  const navView = S.view === "lesson" ? "path" : S.view;
+  const items = NAV.map(([v, label, icon]) => '<button data-act="nav" data-view="' + v + '"' + (navView === v ? ' aria-current="page"' : "") + ">" + icon + "<span>" + label + "</span></button>").join("");
+  $("#tabbar").innerHTML = items;
+  $("#side-nav").innerHTML = items;
+  $("#lang-seg").innerHTML = LANG_ORDER.map(k => '<button data-act="lang" data-lang="' + k + '" aria-pressed="' + (S.lang === k) + '">' + COURSES[k].name + "</button>").join("");
+}
+
+function render() {
+  renderChrome();
+  const main = $("#main");
+  if (S.view === "lesson") main.innerHTML = viewLesson();
+  else if (S.view === "quiz") main.innerHTML = viewQuiz();
+  else if (S.view === "play") { main.innerHTML = viewPlay(); mountEditor(); }
+  else if (S.view === "prog") main.innerHTML = viewProg();
+  else main.innerHTML = viewPath();
+  paintSync();
+}
+
+function go(view, extra) {
+  Object.assign(S, extra || {});
+  S.view = view;
+  render();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- Lernpfad ---------- */
+function nextLesson(lang) {
+  const ls = COURSES[lang].lessons;
+  return ls.find(l => !P.done[l.id]) || null;
+}
+function viewPath() {
+  const c = course();
+  const total = c.lessons.length;
+  const done = c.lessons.filter(l => P.done[l.id]).length;
+  const nxt = nextLesson(S.lang);
+  let html = '<div class="wrap">';
+  html += '<section class="card hero"><span class="eyebrow">' + esc(c.name) + " · Lernpfad</span>"
+    + "<h1>Von 0 bis Profi in " + esc(c.name) + "</h1><p>" + esc(c.intro) + "</p>"
+    + '<div class="meter" aria-hidden="true"><span style="width:' + Math.round(done / total * 100) + '%"></span></div>'
+    + '<div class="stats"><span>' + done + " von " + total + " Lektionen</span><span>" + xp() + " XP</span></div>"
+    + '<div class="row">' + (nxt ? '<button class="btn primary" data-act="open" data-id="' + nxt.id + '">' + (done ? "Weiter mit " : "Starten mit ") + esc(nxt.title) + I.next + "</button>"
+      : '<span class="lvl lvl-1">' + I.check + "Alle Lektionen abgeschlossen</span>")
+    + '<button class="btn" data-act="nav" data-view="play">' + I.edit + "Live-Code öffnen</button></div></section>";
+  for (const lv of [1, 2, 3]) {
+    const ls = c.lessons.filter(l => l.level === lv);
+    const d = ls.filter(l => P.done[l.id]).length;
+    html += '<section class="level"><div class="level-head"><span class="lvl lvl-' + lv + '">Stufe ' + lv + "</span><h2>" + LEVELS[lv] + '</h2><span class="count">' + d + "/" + ls.length + '</span></div><ol class="lessons">';
+    for (const l of ls) {
+      const idx = c.lessons.indexOf(l) + 1;
+      const isDone = !!P.done[l.id], isTask = !!P.task[l.id];
+      html += '<li><button class="lesson-row' + (isDone ? " is-done" : "") + '" data-act="open" data-id="' + l.id + '">'
+        + '<span class="ln-num">' + (isDone ? I.check.replace("<svg", '<svg width="18" height="18"') : idx) + "</span>"
+        + '<span><span class="ln-title">' + esc(l.title) + '</span><span class="ln-meta">' + l.mins + " Min · " + l.quiz.length + " Fragen · Übung" + (isTask ? " gelöst" : "") + "</span></span>"
+        + '<span class="ln-state"><span class="star' + (isTask ? " on" : "") + '" title="' + (isTask ? "Übung gelöst" : "Übung offen") + '">' + I.star + "</span></span>"
+        + "</button></li>";
+    }
+    html += "</ol></section>";
+  }
+  return html + "</div>";
+}
+
+/* ---------- Lektion ---------- */
+function codeBlock(src, lang, opts) {
+  opts = opts || {};
+  const tryBtn = opts.tryAttrs ? '<button ' + opts.tryAttrs + ">" + I.edit + "Im Editor ausprobieren</button>" : "";
+  return '<figure class="code"><div class="code-bar"><span>' + esc(COURSES[lang].name) + "</span>" + tryBtn + "</div><pre><code>" + hl(src, lang) + "</code></pre></figure>";
+}
+function questionHTML(key, q, lang, order) {
+  order = order || q.opts.map((_, i) => i);
+  const chosen = S.answers[key];
+  const answered = chosen !== undefined;
+  const textOpts = q.opts.every(o => /\s/.test(o) && !/[;(){}=\[\]]/.test(o) || /^[A-Za-zÄÖÜäöü]/.test(o) && !/[;(){}=\[\]"']/.test(o));
+  let html = '<div class="q" data-qkey="' + esc(key) + '"><p class="q-text">' + inline(q.q) + "</p>";
+  if (q.code) html += codeBlock(q.code, lang);
+  html += '<div class="opts">';
+  order.forEach((oi, pos) => {
+    let cls = "opt" + (textOpts ? " v-text" : "");
+    if (answered) { if (oi === q.a) cls += " right"; else if (oi === chosen) cls += " wrong"; }
+    html += '<button class="' + cls + '" data-act="answer" data-key="' + esc(key) + '" data-i="' + oi + '"' + (answered ? " disabled" : "") + '><span class="k">' + "ABCD"[pos] + '</span><span class="v">' + esc(q.opts[oi]) + "</span></button>";
+  });
+  html += "</div>";
+  if (answered) {
+    const ok = chosen === q.a;
+    html += '<div class="why"><span class="verdict ' + (ok ? "ok" : "no") + '">' + (ok ? "Richtig!" : "Nicht ganz. Richtig ist " + "ABCD"[order.indexOf(q.a)] + ".") + "</span><p>" + inline(q.why || "") + "</p>"
+      + '<div class="row">' + (key.startsWith("qz-") ? "" : '<button class="btn small ghost" data-act="retry" data-key="' + esc(key) + '">Nochmal versuchen</button>')
+      + '<button class="btn small ghost ai-only" data-act="why" data-key="' + esc(key) + '">' + I.spark + "Claude erklären lassen</button></div>"
+      + '<div class="answer" data-out="why-' + esc(key) + '"></div></div>';
+  }
+  return html + "</div>";
+}
+function viewLesson() {
+  const found = lessonById(S.lessonId);
+  if (!found) return viewPath();
+  const { l, lang } = found;
+  const c = COURSES[lang];
+  const idx = c.lessons.indexOf(l);
+  let html = '<div class="wrap"><div><button class="back" data-act="nav" data-view="path">' + I.back + "Lernpfad " + esc(c.name) + "</button></div>";
+  html += '<article class="lesson"><div class="lesson-meta"><span class="lvl lvl-' + l.level + '">Stufe ' + l.level + " · " + LEVELS[l.level] + "</span><span>Lektion " + (idx + 1) + " von " + c.lessons.length + "</span><span>" + l.mins + " Min</span></div>";
+  html += "<h1>" + esc(l.title) + "</h1>";
+  l.body.forEach((b, bi) => {
+    if (b[0] === "p") html += "<p>" + inline(b[1]) + "</p>";
+    else if (b[0] === "tip") html += '<aside class="tip"><strong>Merke</strong><p>' + inline(b[1]) + "</p></aside>";
+    else if (b[0] === "code") {
+      const runnable = !(b[2] && b[2].run === false);
+      html += codeBlock(b[1], lang, runnable ? { tryAttrs: 'data-act="try" data-id="' + l.id + '" data-b="' + bi + '"' } : {});
+    }
+  });
+  html += "</article>";
+
+  html += '<section class="card" style="padding:0"><div style="padding:18px 18px 4px"><div class="section-title"><h2>Prüfe dein Wissen</h2><span class="muted">' + l.quiz.filter((q, i) => P.quiz[l.id + ":" + i] === 1).length + "/" + l.quiz.length + " richtig</span></div></div>";
+  l.quiz.forEach((q, i) => { html += questionHTML(l.id + ":" + i, q, lang); });
+  html += "</section>";
+
+  html += '<section class="card task"><div class="section-title"><h2>Übung</h2>' + (P.task[l.id] ? '<span class="state ok">' + I.check.replace("<svg", '<svg width="18" height="18"') + "Gelöst</span>" : '<span class="muted">+25 XP</span>') + "</div>"
+    + "<p>" + inline(l.task.prompt) + "</p>"
+    + '<div class="row"><button class="btn primary" data-act="task" data-id="' + l.id + '">' + I.edit + "Im Live-Code lösen</button></div></section>";
+
+  html += '<section class="card tutor ai-only"><div class="section-title"><h2>Frag den Tutor</h2><span class="muted">Claude erklärt dir die Lektion</span></div>'
+    + '<div class="chips">'
+    + ["Erklär das noch genauer", "Erklär es einfacher", "Zeig mir mehr Beispiele", "Typische Fehler dazu?", "Gib mir eine Zusatzaufgabe"].map(t => '<button class="chip" data-act="tutor" data-q="' + esc(t) + '">' + esc(t) + "</button>").join("")
+    + '</div><form class="ask" data-act="tutor-form"><input id="tutor-q" placeholder="Eigene Frage zu dieser Lektion" autocomplete="off"><button class="btn primary" type="submit">Fragen</button></form>'
+    + '<div class="answer" data-out="tutor"></div></section>';
+
+  const prev = c.lessons[idx - 1], next = c.lessons[idx + 1];
+  html += '<div class="lesson-nav">'
+    + (prev ? '<button class="btn ghost" data-act="open" data-id="' + prev.id + '">' + I.back + esc(prev.title) + "</button>" : "<span></span>")
+    + '<button class="btn primary" data-act="complete" data-id="' + l.id + '">' + (P.done[l.id] ? (next ? "Weiter zur nächsten Lektion" : "Zurück zum Lernpfad") : "Lektion abschließen") + I.next + "</button></div>";
+  return html + "</div>";
+}
+
+/* ---------- Quiz-Modus ---------- */
+function poolFor(lang, level) {
+  const out = [];
+  for (const l of COURSES[lang].lessons) {
+    if (level && l.level !== level) continue;
+    l.quiz.forEach((q, i) => out.push({ key: l.id + ":" + i, q, from: l.title }));
+  }
+  return out;
+}
+function startQuiz(items, label) {
+  S.quiz = { label, items: items.map(it => ({ ...it, order: shuffle(it.q.opts.map((_, i) => i)), skey: "qz-" + Math.random().toString(36).slice(2, 8) })), pos: 0, right: 0, wrong: [] };
+  for (const it of S.quiz.items) delete S.answers[it.skey];
+  go("quiz");
+}
+function viewQuiz() {
+  const c = course();
+  let html = '<div class="wrap">';
+  const Q = S.quiz;
+  if (Q && Q.pos < Q.items.length) {
+    const it = Q.items[Q.pos];
+    const answered = S.answers[it.skey] !== undefined;
+    html += '<div class="quiz-top"><button class="back" data-act="quit-quiz">' + I.back + 'Beenden</button><div class="meter"><span style="width:' + Math.round(Q.pos / Q.items.length * 100) + '%"></span></div><span>' + (Q.pos + 1) + " / " + Q.items.length + "</span></div>";
+    html += '<section class="card" style="padding:0">' + '<div style="padding:16px 18px 0" class="from">' + esc(Q.label) + (it.from ? " · aus „" + esc(it.from) + "“" : "") + "</div>" + questionHTML(it.skey, it.q, S.lang, it.order) + "</section>";
+    if (answered) html += '<div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="quiz-next">' + (Q.pos + 1 < Q.items.length ? "Nächste Frage" : "Auswertung") + I.next + "</button></div>";
+    return html + "</div>";
+  }
+  if (Q) {
+    const pct = Math.round(Q.right / Q.items.length * 100);
+    html += '<section class="card result"><span class="eyebrow">' + esc(Q.label) + '</span><span class="score">' + Q.right + " / " + Q.items.length + "</span><p>"
+      + (pct === 100 ? "Perfekt. Zeit für die nächste Stufe." : pct >= 70 ? "Stark. Wiederhole die falschen Fragen, dann sitzt es." : "Guter Anfang. Lies die passenden Lektionen noch einmal und versuch es erneut.") + "</p>"
+      + '<div class="row">' + (Q.wrong.length ? '<button class="btn primary" data-act="quiz-wrong">' + Q.wrong.length + " falsche wiederholen</button>" : "")
+      + '<button class="btn" data-act="quit-quiz">Neues Quiz</button></div></section>';
+    return html + "</div>";
+  }
+  const lvls = [[0, "Alle"], [1, "Einsteiger"], [2, "Fortgeschritten"], [3, "Profi"]];
+  const pool = poolFor(S.lang, S.quizLevel);
+  html += '<section class="card hero"><span class="eyebrow">' + esc(c.name) + " · Quiz</span><h1>Teste dich mit Code-Fragen</h1><p>Zufällige Multiple-Choice-Fragen aus allen Lektionen. Antworten werden gemischt, nach jeder Frage siehst du die Erklärung.</p>"
+    + '<div class="field"><label>Stufe</label><div class="seg" role="group" aria-label="Stufe">' + lvls.map(([v, t]) => '<button data-act="qlevel" data-v="' + v + '" aria-pressed="' + (S.quizLevel === v) + '">' + t + "</button>").join("") + "</div></div>"
+    + '<div class="row"><button class="btn primary" data-act="quiz-start"' + (pool.length ? "" : " disabled") + ">" + Math.min(10, pool.length) + " Fragen starten" + I.next + '</button><span class="muted">' + pool.length + " Fragen verfügbar</span></div></section>";
+  html += '<section class="card ai-only"><div class="tutor"><div class="section-title"><h2>Neue Fragen von Claude</h2><span class="muted">unbegrenzt üben</span></div>'
+    + "<p class=\"muted\">Claude schreibt dir fünf frische Fragen auf deinem Niveau, mit Code und Erklärung.</p>"
+    + '<div class="seg" role="group" aria-label="Niveau">' + [1, 2, 3].map(v => '<button data-act="glevel" data-v="' + v + '" aria-pressed="' + (S.gen.level === v) + '">' + LEVELS[v] + "</button>").join("") + "</div>"
+    + '<div class="row"><button class="btn primary" data-act="gen"' + (S.gen.busy ? " disabled" : "") + ">" + I.spark + (S.gen.busy ? '<span class="dots">Claude schreibt Fragen</span>' : "5 Fragen erzeugen") + "</button></div>"
+    + (S.gen.error ? '<p class="answer"><span class="err">' + esc(S.gen.error) + "</span></p>" : "")
+    + "</div></section>";
+  return html + "</div>";
+}
+
+/* ---------- Live-Code ---------- */
+function viewPlay() {
+  const c = course();
+  const d = draft(S.lang);
+  const t = S.task && S.task.lang === S.lang ? S.task : null;
+  let html = '<div class="wrap wide">';
+  if (t) {
+    const l = lessonById(t.id).l;
+    html += '<div class="pg-task"><div class="row"><span class="eyebrow">Übung · ' + esc(l.title) + '</span><button class="btn small ghost" data-act="task-close">Übung schließen</button></div><p>' + inline(l.task.prompt) + "</p>"
+      + (t.result ? '<div class="verdict-bar ' + (t.result === "ok" ? "ok" : "no") + '">' + (t.result === "ok" ? "Gelöst! +25 XP. Die Ausgabe stimmt." : "Noch nicht. Erwartet wird:\n" + esc(l.task.expect)).replace(/\n/g, "<br>") + "</div>" : "")
+      + (t.result === "ok" ? '<div class="row"><button class="btn small" data-act="open" data-id="' + l.id + '">' + I.back + "Zurück zur Lektion</button></div>" : "")
+      + "</div>";
+  }
+  const examples = [];
+  c.lessons.forEach(l => l.body.forEach((b, bi) => { if (b[0] === "code" && !(b[2] && b[2].run === false)) examples.push([l.id + ":" + bi, l.title]); }));
+  html += '<div class="pg-grid"><div class="ed-card"><div class="ed-bar"><span class="file">' + esc(c.file) + "</span>"
+    + '<select id="pg-example" aria-label="Beispiel laden"><option value="">Beispiel laden</option>' + examples.map(([v, t2]) => '<option value="' + v + '">' + esc(t2) + "</option>").join("") + "</select>"
+    + '<button data-act="pg-reset">Zurücksetzen</button></div>'
+    + '<div class="editor"><div class="gutter"><div class="gutter-in" id="gutter"></div></div><div class="ed-area"><pre class="ed-hl" id="ed-hl" aria-hidden="true"></pre>'
+    + '<textarea id="pg-code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Code-Editor"></textarea></div></div>'
+    + '<div class="keybar" id="keybar">' + keybarKeys().map(k => '<button type="button" data-key="' + esc(k[1]) + '">' + esc(k[0]) + "</button>").join("") + "</div></div>";
+  html += '<div class="run-col"><div class="row"><button class="btn primary" id="run-btn" data-act="run">' + I.run + "Ausführen</button>"
+    + '<button class="btn ai-only" data-act="review">' + I.spark + "Code von Claude prüfen lassen</button></div>"
+    + '<details class="stdin"' + (d.stdin ? " open" : "") + '><summary>Eingabe (stdin), eine Zeile pro Eingabe</summary><textarea id="pg-stdin" spellcheck="false" aria-label="Eingabe">' + esc(d.stdin || "") + "</textarea></details>"
+    + '<div class="console"><div class="console-bar"><span>Ausgabe</span><span id="run-state"></span></div><pre id="pg-out"><span class="sys">Drück auf Ausführen, um dein Programm zu starten.</span></pre></div>'
+    + '<div class="answer" data-out="review"></div>'
+    + '<p class="engine-note">' + engineNote() + "</p></div></div>";
+  return html + "</div>";
+}
+function engineNote() {
+  if (S.lang === "c") return cEngine === "picoc"
+    ? "C läuft direkt im Browser über PicoC, einen C-Interpreter als WebAssembly. Zeiger, structs, malloc und die Standardbibliothek sind dabei. Für große Projekte nimmst du später gcc oder clang. Strg + Enter führt den Code aus."
+    : "C läuft hier über den Ersatz-Interpreter JSCPP, weil dein Browser kein WebAssembly lädt. Er kennt Grundlagen, Zeiger und Arrays, aber keine structs und kein malloc.";
+  if (S.lang === "py") return "Python läuft im Browser über Skulpt, einen Python-3-Interpreter in JavaScript. Die Sprache und viele Standardfunktionen sind dabei, große Bibliotheken wie numpy nicht.";
+  return "JavaScript läuft in einem abgeschotteten Worker deines Browsers. console.log, Timer und async/await funktionieren wie gewohnt.";
+}
+function keybarKeys() {
+  const base = [["Tab", "\t"], ["{", "{"], ["}", "}"], ["(", "("], [")", ")"], ["[", "["], ["]", "]"], [";", ";"], ["\"", "\""], ["'", "'"], ["=", "="], ["<", "<"], [">", ">"], ["+", "+"], ["-", "-"], ["*", "*"], ["/", "/"], ["%", "%"], ["&", "&"], ["|", "|"], ["!", "!"]];
+  if (S.lang === "py") return [["Tab", "\t"], [":", ":"], ["(", "("], [")", ")"], ["[", "["], ["]", "]"], ["{", "{"], ["}", "}"], ["\"", "\""], ["'", "'"], ["=", "="], ["<", "<"], [">", ">"], ["+", "+"], ["-", "-"], ["*", "*"], ["/", "/"], ["%", "%"], ["#", "#"], ["_", "_"]];
+  if (S.lang === "c") return base.concat([["#", "#"], ["\\n", "\\n"], ["%d", "%d"]]);
+  return base.concat([["=>", " => "], ["`", "`"], ["$", "$"]]);
+}
+
+/* ---------- Fortschritt ---------- */
+function viewProg() {
+  const allQuiz = Object.values(P.quiz);
+  const acc = allQuiz.length ? Math.round(allQuiz.filter(v => v === 1).length / allQuiz.length * 100) + " %" : "–";
+  const doneAll = Object.keys(P.done).length;
+  const totalAll = LANG_ORDER.reduce((s, k) => s + COURSES[k].lessons.length, 0);
+  let html = '<div class="wrap"><section class="hero" style="padding:0"><span class="eyebrow">Fortschritt</span><h1>Dein Stand</h1></section>';
+  html += '<div class="tiles"><div class="tile"><b>' + xp() + '</b><span>XP gesamt</span></div><div class="tile"><b>' + streak() + '</b><span>Tage in Folge</span></div>'
+    + '<div class="tile"><b>' + doneAll + "/" + totalAll + '</b><span>Lektionen</span></div><div class="tile"><b>' + acc + "</b><span>Quiz-Trefferquote</span></div></div>";
+  html += '<section class="card lang-prog"><h2>Sprachen</h2>';
+  for (const k of LANG_ORDER) {
+    const ls = COURSES[k].lessons;
+    const d = ls.filter(l => P.done[l.id]).length, t = ls.filter(l => P.task[l.id]).length;
+    html += '<div><div class="row"><strong>' + COURSES[k].name + "</strong><span>" + d + "/" + ls.length + " Lektionen · " + t + " Übungen</span></div>"
+      + '<div class="meter"><span style="width:' + Math.round(d / ls.length * 100) + '%"></span></div></div>';
+  }
+  html += "</section>";
+  html += '<section class="card tutor"><h2>Speicherung</h2><div class="sync" data-sync data-s="' + sync.state + '"><i></i><span>' + syncLabel() + "</span></div>"
+    + '<p class="muted">' + (sync.ref ? "Dein Fortschritt liegt in deinem Claude-Konto. Öffne diese App auf dem Galaxy S24 und am Windows-PC mit demselben Konto, dann ist dein Stand überall gleich." : "Ohne Anmeldung bei Claude bleibt dein Fortschritt in diesem Browser. Öffne die App in der Claude-App oder auf claude.ai, damit er zwischen Handy und PC synchronisiert wird.") + "</p></section>";
+  html += '<section class="card"><h2 style="margin-bottom:12px">Als App nutzen</h2><div class="howto">'
+    + "<div><strong>Samsung Galaxy S24</strong><p>Öffne den Link in Chrome oder Samsung Internet, tippe auf das Menü und wähle „Zum Startbildschirm hinzufügen“. Codepfad startet dann wie eine App.</p></div>"
+    + "<div><strong>Windows 11</strong><p>Öffne den Link in Edge oder Chrome und wähle im Menü „Apps“ → „Diese Website als App installieren“. Codepfad bekommt ein eigenes Fenster und einen Eintrag im Startmenü.</p></div>"
+    + "</div></section>";
+  html += '<section class="card tutor"><h2>Zurücksetzen</h2><p class="muted">Löscht alle Lektionen, Übungen und Quiz-Ergebnisse auf allen Geräten.</p>'
+    + (S.confirmReset ? '<div class="confirm"><span>Wirklich alles löschen?</span><button class="btn small" style="color:var(--bad)" data-act="reset-yes">Ja, löschen</button><button class="btn small ghost" data-act="reset-no">Abbrechen</button></div>'
+      : '<div class="row"><button class="btn small" data-act="reset">Fortschritt zurücksetzen</button></div>') + "</section>";
+  return html + "</div>";
+}
+
+/* =====================================================================
+   Editor
+   ===================================================================== */
+let ED = null;
+function mountEditor() {
+  const ta = $("#pg-code"), pre = $("#ed-hl"), gut = $("#gutter");
+  const d = draft(S.lang);
+  ta.value = d.code;
+  const lang = S.lang;
+  const paint = () => {
+    pre.innerHTML = hl(ta.value, lang) + "\n";
+    const n = ta.value.split("\n").length;
+    let g = "";
+    for (let i = 1; i <= n; i++) g += i + "\n";
+    gut.textContent = g;
+    syncScroll();
+  };
+  const syncScroll = () => {
+    pre.style.transform = "translate(" + (-ta.scrollLeft) + "px," + (-ta.scrollTop) + "px)";
+    gut.style.transform = "translateY(" + (-ta.scrollTop) + "px)";
+  };
+  let saveT;
+  const persist = () => { clearTimeout(saveT); saveT = setTimeout(() => saveDraft(lang, { code: ta.value, stdin: $("#pg-stdin") ? $("#pg-stdin").value : "" }), 300); };
+  ta.addEventListener("input", () => { paint(); persist(); });
+  ta.addEventListener("scroll", syncScroll);
+  $("#pg-stdin").addEventListener("input", persist);
+  const indentUnit = lang === "js" ? "  " : "    ";
+  const insert = (text) => {
+    ta.focus();
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    ta.setRangeText(text, s, e, "end");
+    paint(); persist();
+  };
+  ta.addEventListener("keydown", (ev) => {
+    if (ev.key === "Tab" && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
+      ev.preventDefault();
+      if (ev.shiftKey) {
+        const s = ta.selectionStart, lineStart = ta.value.lastIndexOf("\n", s - 1) + 1;
+        const lead = ta.value.slice(lineStart).match(/^ */)[0].length;
+        const rm = Math.min(lead, indentUnit.length);
+        if (rm) { ta.setRangeText("", lineStart, lineStart + rm, "preserve"); ta.selectionStart = ta.selectionEnd = Math.max(lineStart, s - rm); paint(); persist(); }
+      } else insert(indentUnit);
+    } else if (ev.key === "Enter" && !ev.isComposing) {
+      ev.preventDefault();
+      const s = ta.selectionStart;
+      const lineStart = ta.value.lastIndexOf("\n", s - 1) + 1;
+      const line = ta.value.slice(lineStart, s);
+      let ind = line.match(/^[ \t]*/)[0];
+      const trimmed = line.trimEnd();
+      if (/[{(\[]$/.test(trimmed) || (lang === "py" && /:$/.test(trimmed))) ind += indentUnit;
+      const after = ta.value.slice(s, s + 1);
+      if (/[{(\[]$/.test(trimmed) && /[}\)\]]/.test(after)) {
+        insert("\n" + ind + "\n" + ind.slice(indentUnit.length));
+        ta.selectionStart = ta.selectionEnd = s + 1 + ind.length;
+      } else insert("\n" + ind);
+    } else if ((ev.ctrlKey || ev.metaKey) && ev.key === "Enter") {
+      ev.preventDefault(); runCode();
+    }
+  });
+  const kb = $("#keybar");
+  kb.addEventListener("pointerdown", (ev) => { if (ev.target.closest("button")) ev.preventDefault(); });
+  kb.addEventListener("click", (ev) => {
+    const b = ev.target.closest("button"); if (!b) return;
+    const k = b.dataset.key;
+    insert(k === "\t" ? indentUnit : k);
+  });
+  $("#pg-example").addEventListener("change", (ev) => {
+    const v = ev.target.value; if (!v) return;
+    const [id, bi] = v.split(":");
+    const { l } = lessonById(id);
+    const b = l.body[+bi];
+    setEditor(runnable(b[1], S.lang), (b[2] && b[2].stdin) || "");
+    ev.target.value = "";
+  });
+  ED = { ta, paint, set: (code, stdin) => { ta.value = code; $("#pg-stdin").value = stdin || ""; if (stdin) $(".stdin").open = true; paint(); saveDraft(lang, { code, stdin: stdin || "" }); ta.scrollTop = 0; } };
+  paint();
+}
+function setEditor(code, stdin) { if (ED) ED.set(code, stdin); }
+function runnable(src, lang) {
+  if (lang !== "c" || /\bmain\s*\(/.test(src)) return src;
+  let body = src.split("\n").filter(l => !/^\s*#include/.test(l)).join("\n");
+  // Typdefinitionen gehören vor main
+  const types = [];
+  body = body.replace(/^struct\s+\w+\s*\{[\s\S]*?^\};[ \t]*\n?/gm, (m) => { types.push(m.trim()); return ""; }).trim();
+  return "#include <stdio.h>\n#include <string.h>\n#include <stdlib.h>\n\n" + (types.length ? types.join("\n\n") + "\n\n" : "") + "int main(void) {\n" + body.split("\n").map(l => l ? "    " + l : l).join("\n") + "\n    return 0;\n}\n";
+}
+
+/* =====================================================================
+   Code ausführen
+   ===================================================================== */
+const CDN = {
+  picoc: "https://cdn.jsdelivr.net/npm/picoc-web@1.1.0/dist/bundle.iife.js",
+  jscpp: "https://cdn.jsdelivr.net/npm/JSCPP@2.0.6/dist/JSCPP.es5.min.js",
+  sk: "https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js",
+  skstd: "https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"
+};
+const scriptCache = {};
+function loadScript(src) {
+  if (!scriptCache[src]) {
+    scriptCache[src] = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = src; s.async = true;
+      s.onload = resolve;
+      s.onerror = () => { delete scriptCache[src]; reject(new Error("Der Interpreter konnte nicht geladen werden. Prüfe deine Internetverbindung.")); };
+      document.head.appendChild(s);
+    });
+  }
+  return scriptCache[src];
+}
+/* C: PicoC (WebAssembly) in einem Worker, damit Endlosschleifen abgebrochen werden können.
+   Kann der Browser kein WebAssembly laden, springt JSCPP ein. */
+let cEngine = "picoc";
+function runPicoc(code, stdin, out, err, onStatus) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(new Blob([$("#c-worker").textContent], { type: "text/javascript" }));
+    const w = new Worker(url);
+    let ended = false, timer;
+    const end = (v) => { if (ended) return; ended = true; clearTimeout(timer); w.terminate(); URL.revokeObjectURL(url); resolve(v); };
+    timer = setTimeout(() => end("unavailable"), 45000);
+    w.onmessage = (e) => {
+      const m = e.data;
+      if (m.t === "ready") {
+        if (onStatus) onStatus("läuft …");
+        clearTimeout(timer);
+        timer = setTimeout(() => { err("Abgebrochen: Das Programm lief länger als 6 Sekunden (Endlosschleife?).\n"); end("ok"); }, 6000);
+      } else if (m.t === "out") {
+        const pe = m.s.match(/^file\.c:(\d+):(\d+)\s+(.*)/);
+        if (pe) err("Fehler in Zeile " + pe[1] + ", Spalte " + pe[2] + ": " + pe[3] + "\n");
+        else out(m.s);
+      } else if (m.t === "done") {
+        end("ok");
+      } else if (m.t === "unavailable") end("unavailable");
+    };
+    w.onerror = (e) => { e.preventDefault(); end("unavailable"); };
+    w.postMessage({ code, stdin, url: CDN.picoc });
+  });
+}
+async function runC(code, stdin, out, err, onStatus) {
+  if (cEngine === "picoc") {
+    const r = await runPicoc(code, stdin, out, err || out, onStatus);
+    if (r === "ok") return 0;
+    cEngine = "jscpp";
+  }
+  await loadScript(CDN.jscpp);
+  const J = window.JSCPP && (window.JSCPP.run ? window.JSCPP : window.JSCPP.default);
+  return J.run(code.replace(/\(\s*void\s*\)/g, "()"), stdin || "", { stdio: { write: (s) => out(String(s)) } });
+}
+async function runPy(code, stdin, out) {
+  await loadScript(CDN.sk);
+  await loadScript(CDN.skstd);
+  const lines = stdin ? stdin.split("\n") : [];
+  const start = Date.now();
+  window.Sk.configure({
+    output: (s) => out(s),
+    read: (f) => { const files = window.Sk.builtinFiles && window.Sk.builtinFiles.files; if (!files || files[f] === undefined) throw "Datei nicht gefunden: " + f; return files[f]; },
+    __future__: window.Sk.python3,
+    inputfunTakesPrompt: true,
+    inputfun: (p) => { const v = lines.length ? lines.shift() : ""; out((p || "") + v + "\n"); return v; },
+    yieldLimit: 100
+  });
+  await window.Sk.misceval.asyncToPromise(
+    () => window.Sk.importMainWithBody("<stdin>", false, code, true),
+    { "*": () => { if (Date.now() - start > 6000) throw new Error("Zeitlimit von 6 Sekunden überschritten (Endlosschleife?)"); } }
+  );
+}
+function runJS(code, stdin, out, err) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(new Blob([$("#js-worker").textContent], { type: "text/javascript" }));
+    const w = new Worker(url);
+    let ended = false;
+    const end = (msg) => { if (ended) return; ended = true; clearTimeout(timer); w.terminate(); URL.revokeObjectURL(url); if (msg) err(msg); resolve(); };
+    const timer = setTimeout(() => end("Abgebrochen: Das Programm lief länger als 6 Sekunden (Endlosschleife oder offener Timer?).\n"), 6000);
+    w.onmessage = (e) => { const { t, s } = e.data; if (t === "out") out(s); else if (t === "err") err(s); else if (t === "done") end(); };
+    w.onerror = (e) => { e.preventDefault(); end((e.message || "Fehler") + "\n"); };
+    w.postMessage({ code, stdin });
+  });
+}
+function errText(e) {
+  if (!e) return "Unbekannter Fehler";
+  if (typeof e === "string") return e;
+  if (e.toString && e.toString !== Object.prototype.toString) return e.toString();
+  return e.message || String(e);
+}
+let running = false;
+let lastRun = { out: "", err: "" };
+async function runCode() {
+  if (running || !ED) return;
+  running = true;
+  const code = ED.ta.value, stdin = $("#pg-stdin").value, lang = S.lang;
+  const pre = $("#pg-out"), state = $("#run-state"), btn = $("#run-btn");
+  pre.textContent = ""; state.textContent = "läuft …"; btn.disabled = true;
+  let stdout = "", stderr = "";
+  const out = (s) => { stdout += s; pre.appendChild(document.createTextNode(s)); pre.scrollTop = pre.scrollHeight; };
+  const err = (s) => { stderr += s; const sp = document.createElement("span"); sp.className = "e"; sp.textContent = s; pre.appendChild(sp); pre.scrollTop = pre.scrollHeight; };
+  const t0 = performance.now();
+  try {
+    if (lang === "c") {
+      state.textContent = "lädt C-Interpreter …";
+      const exit = await runC(code, stdin, out, err, (s) => { state.textContent = s; });
+      if (exit !== 0 && exit !== undefined) err("\nProgramm beendet mit Code " + exit + "\n");
+    } else if (lang === "py") {
+      if (!window.Sk) state.textContent = "lädt Python …";
+      await runPy(code, stdin, out);
+    } else {
+      await runJS(code, stdin, out, err);
+    }
+  } catch (e) {
+    err((stdout && !stdout.endsWith("\n") ? "\n" : "") + errText(e) + "\n");
+  }
+  const ms = Math.round(performance.now() - t0);
+  if (!stdout && !stderr) { const sp = document.createElement("span"); sp.className = "sys"; sp.textContent = "(keine Ausgabe)"; pre.appendChild(sp); }
+  state.textContent = "fertig in " + ms + " ms";
+  btn.disabled = false;
+  running = false;
+  lastRun = { out: stdout, err: stderr };
+  touch();
+  checkTask(stdout, stderr);
+}
+function norm(s) { const l = String(s).replace(/\r/g, "").split("\n").map(x => x.trimEnd()); while (l.length && !l[l.length - 1]) l.pop(); return l; }
+function checkTask(stdout, stderr) {
+  const t = S.task;
+  if (!t || t.lang !== S.lang) return;
+  const l = lessonById(t.id).l;
+  const want = norm(l.task.expect), got = norm(stdout);
+  const ok = !stderr.trim() && got.length >= want.length && want.every((w, i) => got[got.length - want.length + i] === w);
+  t.result = ok ? "ok" : "no";
+  if (ok && !P.task[t.id]) { P.task[t.id] = true; touch(); }
+  // nur den Übungsbanner neu zeichnen, Editor bleibt erhalten
+  const box = $(".pg-task");
+  if (box) {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = viewPlay();
+    box.replaceWith(tmp.querySelector(".pg-task"));
+  }
+}
+
+/* =====================================================================
+   Claude (Tutor, Erklärungen, Code-Review, neue Fragen)
+   ===================================================================== */
+let samplePromise = null;
+function getSample() {
+  if (!samplePromise) samplePromise = (window.claude && window.claude.use) ? window.claude.use("sample").catch(() => null) : Promise.resolve(null);
+  return samplePromise;
+}
+function aiOff() { S.ai = false; document.documentElement.dataset.ai = "0"; }
+const ERR = {
+  rate_limited: "Gerade zu viele Anfragen. Versuch es in einer Minute noch einmal.",
+  session_expired: "Bitte melde dich bei Claude erneut an.",
+  refused: "Claude hat diese Anfrage abgelehnt. Formuliere die Frage anders.",
+  empty_completion: "Claude hat keine Antwort geschrieben. Frag etwas kürzer.",
+  prompt_too_large: "Der Code ist zu lang für eine Frage. Kürze ihn etwas.",
+  invalid_json: "Die Fragen kamen in einem unlesbaren Format. Versuch es noch einmal."
+};
+const HIDE = ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"];
+let activeCtl = null;
+async function ask(prompt, outEl, opts) {
+  const sample = await getSample();
+  if (!sample) { aiOff(); return; }
+  if (activeCtl) activeCtl.abort();
+  const ctl = new AbortController(); activeCtl = ctl;
+  outEl.innerHTML = '<div class="thinking"><span class="dots">Claude denkt nach</span><button class="btn small ghost" type="button">Stopp</button></div>';
+  outEl.querySelector("button").onclick = () => ctl.abort();
+  try {
+    await sample(prompt, Object.assign({ signal: ctl.signal, onText: ({ text }) => { outEl.innerHTML = md(text); } }, opts || {}));
+  } catch (e) {
+    const code = e && e.code;
+    if (code === "cancelled") { outEl.innerHTML = e.text ? md(e.text) : ""; }
+    else if (HIDE.includes(code)) { outEl.innerHTML = ""; aiOff(); }
+    else outEl.innerHTML = (e && e.text ? md(e.text) : "") + '<p class="err">' + esc(ERR[code] || "Verbindung unterbrochen. Versuch es noch einmal.") + "</p>";
+  } finally { if (activeCtl === ctl) activeCtl = null; }
+}
+function lessonText(l) {
+  return l.body.map(b => b[0] === "code" ? "```\n" + b[1] + "\n```" : b[1]).join("\n\n");
+}
+const TUTOR_RULES = "Du bist ein geduldiger, sehr präziser Programmier-Tutor in der Lern-App Codepfad. Antworte auf Deutsch, klar gegliedert, mit kurzen Absätzen. Code steht immer in Markdown-Codeblöcken mit drei Backticks. Erkläre genau, warum etwas so ist, nicht nur wie. Bleib beim Thema der Lektion und passe die Tiefe an das Niveau an.";
+function tutorAsk(question) {
+  const found = lessonById(S.lessonId); if (!found) return;
+  const { l, lang } = found;
+  const prompt = TUTOR_RULES + "\n\nSprache: " + COURSES[lang].name + "\nNiveau: " + LEVELS[l.level] + "\nLektion: " + l.title + "\n\nInhalt der Lektion:\n" + lessonText(l) + "\n\nAnliegen des Lernenden: " + question;
+  ask(prompt, $('[data-out="tutor"]'));
+}
+function findQuestion(key) {
+  if (key.startsWith("qz-")) { const it = S.quiz && S.quiz.items.find(x => x.skey === key); return it ? { q: it.q, lang: S.lang } : null; }
+  const [id, i] = key.split(":");
+  const f = lessonById(id); return f ? { q: f.l.quiz[+i], lang: f.lang } : null;
+}
+function whyAsk(key) {
+  const f = findQuestion(key); if (!f) return;
+  const { q, lang } = f;
+  const chosen = S.answers[key];
+  const prompt = TUTOR_RULES + "\n\nEin Lernender hat diese Multiple-Choice-Frage zu " + COURSES[lang].name + " beantwortet.\nFrage: " + q.q + (q.code ? "\nCode:\n```\n" + q.code + "\n```" : "")
+    + "\nOptionen:\n" + q.opts.map((o, i) => "- " + o + (i === q.a ? " (richtig)" : "")).join("\n")
+    + "\nGewählt: " + q.opts[chosen] + (chosen === q.a ? " (richtig)" : " (falsch)")
+    + "\n\nErkläre Schritt für Schritt, was hier passiert und warum die richtige Antwort stimmt" + (chosen === q.a ? "" : " und wo der Denkfehler bei der gewählten Antwort liegt") + ". Höchstens 180 Wörter.";
+  ask(prompt, document.querySelector('[data-out="why-' + CSS.escape(key) + '"]'));
+}
+function reviewAsk() {
+  const code = ED ? ED.ta.value : "";
+  const t = S.task && S.task.lang === S.lang ? lessonById(S.task.id).l : null;
+  const prompt = TUTOR_RULES + "\n\nPrüfe diesen " + COURSES[S.lang].name + "-Code eines Lernenden." + (t ? "\nAufgabe: " + t.task.prompt + "\nErwartete Ausgabe:\n" + t.task.expect : "")
+    + "\n\nCode:\n```\n" + code.slice(0, 12000) + "\n```\n\nLetzte Ausgabe:\n```\n" + (lastRun.out + lastRun.err).slice(0, 3000) + "\n```"
+    + "\n\nGib Feedback in drei Teilen: 1. Was funktioniert, 2. Fehler oder Risiken (mit Zeilenbezug), 3. Ein konkreter Verbesserungsvorschlag mit Code. "
+    + (t ? "Verrate die vollständige Lösung nicht, wenn die Aufgabe noch nicht gelöst ist, sondern gib einen Hinweis." : "") + " Höchstens 250 Wörter.";
+  ask(prompt, $('[data-out="review"]'));
+}
+async function generateQuestions() {
+  const sample = await getSample();
+  if (!sample) { aiOff(); return; }
+  S.gen.busy = true; S.gen.error = ""; render();
+  const lang = S.lang, level = S.gen.level;
+  const prompt = "Erstelle 5 neue Multiple-Choice-Fragen auf Deutsch zur Programmiersprache " + COURSES[lang].name + " für das Niveau „" + LEVELS[level] + "“ "
+    + "(Einsteiger = Grundlagen wie Ausgabe, Variablen, Bedingungen, Schleifen; Fortgeschritten = Funktionen, Datenstrukturen, Zeiger bzw. Referenzen; Profi = Speicher, Nebenläufigkeit, Sprachdetails, Fallstricke). "
+    + "Mindestens 3 Fragen enthalten ein kurzes Code-Snippet (höchstens 8 Zeilen) und fragen nach der Ausgabe oder einem Fehler. Genau eine Option ist richtig, die falschen Optionen sind plausible typische Irrtümer. "
+    + "Prüfe jede Antwort sorgfältig, sie muss exakt stimmen.\n"
+    + 'Antworte nur mit einem JSON-Array aus 5 Objekten dieser Form: {"frage": string, "code": string (leer, wenn kein Code), "optionen": [4 strings], "richtig": Index 0-3, "erklaerung": string (1-3 Sätze)}';
+  try {
+    const data = await sample.json(prompt, { cache: false, modelTier: level === 3 ? "complex" : "default" });
+    const items = (Array.isArray(data) ? data : []).filter(x => x && typeof x.frage === "string" && Array.isArray(x.optionen) && x.optionen.length === 4 && Number.isInteger(x.richtig) && x.richtig >= 0 && x.richtig < 4)
+      .map(x => ({ key: null, from: "", generated: true, q: { q: x.frage, code: (x.code || "").trim() || undefined, opts: x.optionen.map(String), a: x.richtig, why: String(x.erklaerung || "") } }));
+    S.gen.busy = false;
+    if (!items.length) { S.gen.error = "Die Fragen kamen unvollständig an. Versuch es noch einmal."; render(); return; }
+    startQuiz(items, "Neue Fragen von Claude · " + LEVELS[level]);
+  } catch (e) {
+    S.gen.busy = false;
+    if (HIDE.includes(e && e.code)) { aiOff(); S.gen.error = ""; }
+    else if (e && e.code !== "cancelled") S.gen.error = ERR[e.code] || "Verbindung unterbrochen. Versuch es noch einmal.";
+    render();
+  }
+}
+
+/* =====================================================================
+   Ereignisse
+   ===================================================================== */
+document.addEventListener("click", (ev) => {
+  const el = ev.target.closest("[data-act]");
+  if (!el || el.tagName === "FORM") return;
+  const act = el.dataset.act;
+  switch (act) {
+    case "nav": if (el.dataset.view === "quiz" && S.view !== "quiz" && S.quiz && S.quiz.pos >= S.quiz.items.length) S.quiz = null; go(el.dataset.view); break;
+    case "lang":
+      if (S.lang !== el.dataset.lang) {
+        S.lang = el.dataset.lang; P.lang = S.lang; S.quiz = null; touch();
+        if (S.view === "lesson") S.view = "path";
+        render();
+      }
+      break;
+    case "open": {
+      const f = lessonById(el.dataset.id);
+      if (f) { S.lang = f.lang; go("lesson", { lessonId: el.dataset.id }); }
+      break;
+    }
+    case "try": {
+      const { l, lang } = lessonById(el.dataset.id);
+      const b = l.body[+el.dataset.b];
+      S.lang = lang; S.task = null;
+      saveDraft(lang, { code: runnable(b[1], lang), stdin: (b[2] && b[2].stdin) || "" });
+      go("play");
+      break;
+    }
+    case "task": {
+      const { l, lang } = lessonById(el.dataset.id);
+      S.lang = lang;
+      S.task = { id: l.id, lang, result: null };
+      saveDraft(lang, { code: l.task.starter, stdin: l.task.stdin || "" });
+      go("play");
+      break;
+    }
+    case "task-close": S.task = null; render(); break;
+    case "complete": {
+      const id = el.dataset.id;
+      const { l, lang } = lessonById(id);
+      if (!P.done[id]) { P.done[id] = true; touch(); }
+      const ls = COURSES[lang].lessons, nx = ls[ls.indexOf(l) + 1];
+      if (nx) go("lesson", { lessonId: nx.id }); else go("path");
+      break;
+    }
+    case "answer": {
+      const key = el.dataset.key, i = +el.dataset.i;
+      if (S.answers[key] !== undefined) break;
+      S.answers[key] = i;
+      const f = findQuestion(key);
+      const ok = f && i === f.q.a;
+      if (key.startsWith("qz-")) {
+        const it = S.quiz.items[S.quiz.pos];
+        if (ok) S.quiz.right++; else S.quiz.wrong.push(it);
+        if (it.key) P.quiz[it.key] = Math.max(P.quiz[it.key] || 0, ok ? 1 : 0);
+        else if (ok) P.extra = (P.extra || 0) + 1;
+      } else {
+        P.quiz[key] = Math.max(P.quiz[key] || 0, ok ? 1 : 0);
+      }
+      touch();
+      rerenderQuestion(key);
+      break;
+    }
+    case "retry": delete S.answers[el.dataset.key]; rerenderQuestion(el.dataset.key); break;
+    case "why": whyAsk(el.dataset.key); break;
+    case "tutor": tutorAsk(el.dataset.q); break;
+    case "qlevel": S.quizLevel = +el.dataset.v; render(); break;
+    case "glevel": S.gen.level = +el.dataset.v; render(); break;
+    case "quiz-start": {
+      const pool = shuffle(poolFor(S.lang, S.quizLevel)).slice(0, 10);
+      startQuiz(pool, COURSES[S.lang].name + " · " + (S.quizLevel ? LEVELS[S.quizLevel] : "Alle Stufen"));
+      break;
+    }
+    case "quiz-next": S.quiz.pos++; render(); window.scrollTo(0, 0); break;
+    case "quiz-wrong": startQuiz(S.quiz.wrong, "Wiederholung"); break;
+    case "quit-quiz": S.quiz = null; render(); break;
+    case "gen": if (!S.gen.busy) generateQuestions(); break;
+    case "run": runCode(); break;
+    case "review": reviewAsk(); break;
+    case "pg-reset": {
+      const t = S.task && S.task.lang === S.lang ? lessonById(S.task.id).l : null;
+      setEditor(t ? t.task.starter : course().starter, t ? (t.task.stdin || "") : "");
+      break;
+    }
+    case "reset": S.confirmReset = true; render(); break;
+    case "reset-no": S.confirmReset = false; render(); break;
+    case "reset-yes": {
+      const lang = P.lang;
+      P = blank(); P.lang = lang; S.answers = {}; S.confirmReset = false;
+      P.updated = Date.now(); saveLocal(); if (sync.ref) flush();
+      render();
+      break;
+    }
+  }
+});
+document.addEventListener("submit", (ev) => {
+  const f = ev.target.closest("[data-act='tutor-form']");
+  if (!f) return;
+  ev.preventDefault();
+  const inp = $("#tutor-q");
+  const q = inp.value.trim();
+  if (q) { tutorAsk(q); inp.value = ""; }
+});
+function rerenderQuestion(key) {
+  const node = document.querySelector('.q[data-qkey="' + CSS.escape(key) + '"]');
+  if (S.view === "quiz") { render(); return; }
+  if (!node) { render(); return; }
+  const f = findQuestion(key);
+  const tmp = document.createElement("div");
+  tmp.innerHTML = questionHTML(key, f.q, f.lang);
+  node.replaceWith(tmp.firstElementChild);
+  // Zähler "x/3 richtig" aktualisieren
+  const found = lessonById(S.lessonId);
+  const cnt = document.querySelector(".card .section-title .muted");
+  if (found && cnt) cnt.textContent = found.l.quiz.filter((q, i) => P.quiz[found.l.id + ":" + i] === 1).length + "/" + found.l.quiz.length + " richtig";
+}
+
+/* =====================================================================
+   Start
+   ===================================================================== */
+render();
+initSync();
+getSample().then((s) => { if (s) { S.ai = true; document.documentElement.dataset.ai = "1"; } });
+</script>
