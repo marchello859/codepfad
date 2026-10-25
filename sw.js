@@ -1,6 +1,6 @@
-/* Codepfad Service Worker: lädt die App zuerst aus dem Netz (damit Updates sofort ankommen)
+﻿/* Codepfad Service Worker: lädt die App zuerst aus dem Netz (damit Updates sofort ankommen)
    und fällt offline auf den Zwischenspeicher zurück. Bei jeder Änderung CACHE erhöhen. */
-const CACHE = "codepfad-v1";
+const CACHE = "codepfad-v2";
 const CORE = [
   "./", "index.html", "styles.css", "app.js", "manifest.webmanifest",
   "lessons/_base.js", "lessons/c.js", "lessons/py.js", "lessons/js.js",

@@ -278,3 +278,7 @@ main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: m
 .update-bar { position: fixed; z-index: 40; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 12px 14px; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
 @media (min-width: 900px) { .update-bar { left: auto; right: 24px; bottom: 24px; max-width: 420px; } }
 html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.steps { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: .94rem; }
+.steps a, .tutor a { color: var(--accent); font-weight: 600; }
+details.card > summary { cursor: pointer; list-style-position: inside; }
+details.card[open] > summary { margin-bottom: 4px; }

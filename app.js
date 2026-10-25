@@ -1,7 +1,7 @@
-"use strict";
+﻿"use strict";
 /* App-Version: bei jeder Änderung auch CACHE in sw.js erhöhen */
 const APP = {
-  version: "1.0.0",
+  version: "1.1.0",
   apk: "https://github.com/marchello859/codepfad/releases/download/apk/codepfad.apk",
   claude: "https://claude.ai/artifact/N8smC6QFFw6uwJ6qgoPX8Y"
 };
@@ -71,11 +71,16 @@ function md(src) {
    ===================================================================== */
 const LS_KEY = "codepfad.progress.v1";
 const LS_DRAFT = "codepfad.drafts.v1";
-function blank() { return { done: {}, task: {}, quiz: {}, extra: 0, days: [], lang: "c", updated: 0 }; }
+function blank() { return { done: {}, task: {}, quiz: {}, extra: 0, days: [], lang: "c", updated: 0, resetAt: 0 }; }
 function loadLocal() { try { const v = JSON.parse(localStorage.getItem(LS_KEY)); return v && typeof v === "object" ? Object.assign(blank(), v) : blank(); } catch (e) { return blank(); } }
 function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(P)); } catch (e) {} }
 function merge(a, b) {
+  // Ein neueres Zurücksetzen gewinnt: Daten, die älter sind als der Reset, fallen weg
+  const ra = a.resetAt || 0, rb = b.resetAt || 0;
+  if (rb > ra && (a.updated || 0) <= rb) a = Object.assign(blank(), { lang: a.lang, updated: a.updated });
+  if (ra > rb && (b.updated || 0) <= ra) b = Object.assign(blank(), { lang: b.lang, updated: b.updated });
   const r = blank();
+  r.resetAt = Math.max(ra, rb);
   for (const k of ["done", "task"]) r[k] = Object.assign({}, a[k], b[k]);
   r.quiz = Object.assign({}, a.quiz);
   for (const [k, v] of Object.entries(b.quiz || {})) r.quiz[k] = Math.max(r.quiz[k] || 0, v || 0);
@@ -90,7 +95,13 @@ let P = loadLocal();
 
 const sync = { ref: null, state: "local", writing: false, dirty: false, timer: null };
 function syncLabel() {
-  return { local: "Nur auf diesem Gerät", synced: "Mit deinem Konto synchronisiert", saving: "Speichert …", error: "Sync fehlgeschlagen, lokal gespeichert" }[sync.state];
+  return {
+    local: "Nur auf diesem Gerät",
+    synced: G ? "Automatisch synchronisiert" : "Mit deinem Konto synchronisiert",
+    saving: "Gleicht ab …",
+    error: "Offline, wird später abgeglichen",
+    auth: "Sync-Schlüssel ungültig, bitte neu verbinden"
+  }[sync.state];
 }
 function paintSync() {
   for (const el of document.querySelectorAll("[data-sync]")) { el.dataset.s = sync.state; const s = el.querySelector("span"); if (s) s.textContent = syncLabel(); }
@@ -101,10 +112,85 @@ function touch() {
   if (!P.days.includes(d)) P.days.push(d);
   P.updated = Date.now();
   saveLocal();
+  if (G && G.gist) { clearTimeout(gTimer); gTimer = setTimeout(gSync, 2000); }
   if (!sync.ref) return;
   clearTimeout(sync.timer);
   sync.timer = setTimeout(flush, 1200);
 }
+
+/* ---------- Automatischer Abgleich über ein privates GitHub-Gist ----------
+   Jedes Gerät liest beim Start, beim Zurückkehren in die App und jede Minute den Stand aus dem Gist,
+   führt ihn mit dem eigenen zusammen (nichts geht verloren) und schreibt nur, wenn sich etwas geändert hat. */
+const GS_KEY = "codepfad.gistsync.v1";
+const GIST_FILE = "codepfad-fortschritt.json";
+let G = (() => { try { const v = JSON.parse(localStorage.getItem(GS_KEY)); return v && v.token ? v : null; } catch (e) { return null; } })();
+let gTimer = null, gBusy = false, gAgain = false;
+function gSave() { try { if (G) localStorage.setItem(GS_KEY, JSON.stringify(G)); else localStorage.removeItem(GS_KEY); } catch (e) {} }
+function canon(v) {
+  if (Array.isArray(v)) return "[" + v.map(canon).join(",") + "]";
+  if (v && typeof v === "object") return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + canon(v[k])).join(",") + "}";
+  return JSON.stringify(v);
+}
+async function ghApi(path, opts, token) {
+  const res = await fetch("https://api.github.com" + path, Object.assign({ cache: "no-store" }, opts || {}, {
+    headers: { Authorization: "Bearer " + (token || G.token), Accept: "application/vnd.github+json", "Content-Type": "application/json" }
+  }));
+  if (res.status === 401 || res.status === 403) throw { code: "auth" };
+  if (res.status === 404) throw { code: "missing" };
+  if (!res.ok) throw { code: "http" };
+  return res.json();
+}
+async function gFindOrCreate(token) {
+  for (let page = 1; page <= 10; page++) {
+    const list = await ghApi("/gists?per_page=100&page=" + page, null, token);
+    const hit = list.find(g => g.files && g.files[GIST_FILE]);
+    if (hit) return hit.id;
+    if (list.length < 100) break;
+  }
+  const g = await ghApi("/gists", { method: "POST", body: JSON.stringify({
+    description: "Codepfad: Lernfortschritt (wird automatisch synchronisiert)", public: false,
+    files: { [GIST_FILE]: { content: JSON.stringify(P) } }
+  }) }, token);
+  return g.id;
+}
+async function gConnect(token) {
+  token = token.trim();
+  const gist = await gFindOrCreate(token);
+  G = { token, gist };
+  gSave();
+  await gSync();
+}
+async function gSync() {
+  if (!G || !G.gist) return;
+  if (gBusy) { gAgain = true; return; }
+  gBusy = true; sync.state = "saving"; paintSync();
+  try {
+    let g;
+    try { g = await ghApi("/gists/" + G.gist); }
+    catch (e) { if (e.code !== "missing") throw e; G.gist = await gFindOrCreate(G.token); gSave(); g = await ghApi("/gists/" + G.gist); }
+    const f = g.files && g.files[GIST_FILE];
+    let remote = null;
+    if (f) {
+      let txt = f.content;
+      if (f.truncated) txt = await (await fetch(f.raw_url, { cache: "no-store" })).text();
+      try { remote = Object.assign(blank(), JSON.parse(txt)); } catch (e) { remote = null; }
+    }
+    const before = canon(P);
+    if (remote) P = merge(P, remote);
+    if (canon(P) !== before) { saveLocal(); if (S.view !== "play") render(); }
+    if (!remote || canon(P) !== canon(remote)) {
+      await ghApi("/gists/" + G.gist, { method: "PATCH", body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(P) } } }) });
+    }
+    sync.state = "synced";
+  } catch (e) {
+    sync.state = e && e.code === "auth" ? "auth" : "error";
+  }
+  gBusy = false; paintSync();
+  if (gAgain) { gAgain = false; gSync(); }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") gSync(); });
+window.addEventListener("online", () => gSync());
+setInterval(() => { if (document.visibilityState === "visible") gSync(); }, 60 * 1000);
 async function flush() {
   if (!sync.ref) return;
   if (sync.writing) { sync.dirty = true; return; }
@@ -440,12 +526,32 @@ function viewProg() {
       + '<div class="meter"><span style="width:' + Math.round(d / ls.length * 100) + '%"></span></div></div>';
   }
   html += "</section>";
-  html += '<section class="card tutor"><h2>Fortschritt übertragen</h2>'
-    + '<p class="muted">Dein Fortschritt wird auf diesem Gerät gespeichert. Um ihn zwischen Handy und PC abzugleichen, kopiere hier deinen Code und füge ihn auf dem anderen Gerät ein. Beide Stände werden zusammengeführt, nichts geht verloren.</p>'
+  html += '<section class="card tutor"><h2>Auf allen Geräten synchronisieren</h2>';
+  if (G) {
+    html += '<div class="sync" data-sync data-s="' + sync.state + '"><i></i><span>' + syncLabel() + "</span></div>"
+      + '<p class="muted">Dein Fortschritt liegt in einem privaten Gist in deinem GitHub-Konto. Jedes verbundene Gerät gleicht ihn beim Öffnen, beim Zurückkehren in die App und jede Minute automatisch ab.</p>'
+      + '<p class="muted">Weiteres Gerät verbinden: Öffne dort Codepfad → Fortschritt und füge denselben Sync-Schlüssel ein.</p>'
+      + '<div class="row"><button class="btn small primary" data-act="gsync">Jetzt abgleichen</button><button class="btn small" data-act="gcopy">Sync-Schlüssel kopieren</button>'
+      + (S.confirmDisconnect ? '<span class="confirm"><span>Dieses Gerät trennen?</span><button class="btn small" data-act="gdisconnect-yes">Ja, trennen</button><button class="btn small ghost" data-act="gdisconnect-no">Abbrechen</button></span>'
+        : '<button class="btn small ghost" data-act="gdisconnect">Gerät trennen</button>') + "</div>"
+      + (S.gNote ? '<p class="muted">' + esc(S.gNote) + "</p>" : "");
+  } else {
+    html += '<p class="muted">Einmal pro Gerät einrichten, danach ist dein Fortschritt auf Handy und PC automatisch gleich. Gespeichert wird in einem privaten Gist in deinem GitHub-Konto.</p>'
+      + '<ol class="steps">'
+      + '<li>Erstelle einen Sync-Schlüssel bei GitHub: <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Codepfad-Sync" target="_blank" rel="noopener">Schlüssel erstellen</a>. Stelle bei „Expiration“ <strong>No expiration</strong> ein, lass nur „gist“ angehakt und klicke unten auf „Generate token“.</li>'
+      + "<li>Kopiere den Schlüssel (beginnt mit <code>ghp_</code>) und füge ihn hier ein.</li>"
+      + "<li>Auf deinem anderen Gerät denselben Schlüssel einfügen. Fertig.</li></ol>"
+      + '<form class="ask" data-act="gconnect-form"><input id="gtoken" type="password" autocomplete="off" spellcheck="false" placeholder="ghp_…" aria-label="Sync-Schlüssel"><button class="btn primary" type="submit"' + (S.gBusyConnect ? " disabled" : "") + ">" + (S.gBusyConnect ? "Verbinde …" : "Verbinden") + "</button></form>"
+      + (S.gNote ? '<p class="muted">' + esc(S.gNote) + "</p>" : "")
+      + '<p class="muted">Der Schlüssel darf nur Gists lesen und schreiben und bleibt auf deinem Gerät.</p>';
+  }
+  html += "</section>";
+  html += '<details class="card tutor"><summary><strong>Ohne GitHub: Fortschritt per Code übertragen</strong></summary>'
+    + '<p class="muted">Kopiere hier deinen Code und füge ihn auf dem anderen Gerät ein. Beide Stände werden zusammengeführt.</p>'
     + '<div class="row"><button class="btn small" data-act="export">Meinen Code kopieren</button></div>'
     + (S.exportCode ? '<textarea id="export-code" class="code-field" readonly aria-label="Dein Fortschritts-Code">' + esc(S.exportCode) + "</textarea>" + (S.exportNote ? '<p class="muted">' + esc(S.exportNote) + "</p>" : "") : "")
     + '<textarea id="import-code" class="code-field" placeholder="Code vom anderen Gerät hier einfügen" aria-label="Code vom anderen Gerät"></textarea>'
-    + '<div class="row"><button class="btn small primary" data-act="import">Code übernehmen</button>' + (S.importNote ? '<span class="muted">' + esc(S.importNote) + "</span>" : "") + "</div></section>";
+    + '<div class="row"><button class="btn small primary" data-act="import">Code übernehmen</button>' + (S.importNote ? '<span class="muted">' + esc(S.importNote) + "</span>" : "") + "</div></details>";
   if (!S.ai && APP.claude) html += '<section class="card tutor"><h2>KI-Tutor</h2><p class="muted">Erklärungen, Code-Prüfung und neue Fragen von Claude gibt es in der <a href="' + esc(APP.claude) + '" target="_blank" rel="noopener">Claude-Version von Codepfad</a>. Dort wird dein Fortschritt auch über dein Claude-Konto abgeglichen.</p></section>';
   html += '<section class="card tutor"><h2>App installieren</h2><div class="howto">'
     + "<div><strong>Samsung Galaxy S24</strong><p>" + (APP.apk ? 'Lade die <a href="' + esc(APP.apk) + '">Codepfad-APK</a> herunter und öffne sie. Android fragt einmal, ob du Apps aus dieser Quelle erlauben willst. Alternativ in Chrome: Menü → „App installieren“.' : "Öffne die App in Chrome, tippe auf das Menü und wähle „App installieren“.") + "</p></div>"
@@ -876,7 +982,7 @@ document.addEventListener("click", (ev) => {
     case "reset-yes": {
       const lang = P.lang;
       P = blank(); P.lang = lang; S.answers = {}; S.confirmReset = false;
-      P.updated = Date.now(); saveLocal(); if (sync.ref) flush();
+      P.updated = P.resetAt = Date.now(); saveLocal(); if (sync.ref) flush(); gSync();
       render();
       break;
     }
@@ -900,13 +1006,31 @@ document.addEventListener("click", (ev) => {
       render();
       break;
     }
+    case "gsync": S.gNote = ""; gSync(); break;
+    case "gcopy":
+      navigator.clipboard.writeText(G.token).then(() => { S.gNote = "Schlüssel kopiert. Füge ihn auf dem anderen Gerät unter Fortschritt ein."; render(); })
+        .catch(() => { S.gNote = "Kopieren ging nicht. Erstelle für das andere Gerät einfach einen neuen Schlüssel bei GitHub."; render(); });
+      break;
+    case "gdisconnect": S.confirmDisconnect = true; render(); break;
+    case "gdisconnect-no": S.confirmDisconnect = false; render(); break;
+    case "gdisconnect-yes": G = null; gSave(); S.confirmDisconnect = false; S.gNote = ""; sync.state = sync.ref ? "synced" : "local"; render(); break;
     case "install": if (installEvent) { installEvent.prompt(); installEvent.userChoice.finally(() => { installEvent = null; render(); }); } break;
     case "reload":
       navigator.serviceWorker.getRegistration().then((r) => { if (r && r.waiting) r.waiting.postMessage("skip"); else location.reload(); });
       break;
   }
 });
-document.addEventListener("submit", (ev) => {
+document.addEventListener("submit", async (ev) => {
+  if (ev.target.closest("[data-act='gconnect-form']")) {
+    ev.preventDefault();
+    const token = $("#gtoken").value.trim();
+    if (!token) return;
+    S.gBusyConnect = true; S.gNote = ""; render();
+    try { await gConnect(token); S.gNote = "Verbunden. Dein Fortschritt wird ab jetzt automatisch abgeglichen."; }
+    catch (e) { G = null; gSave(); S.gNote = e && e.code === "auth" ? "GitHub hat den Schlüssel abgelehnt. Prüfe, ob „gist“ angehakt war, und kopiere ihn vollständig." : "Keine Verbindung zu GitHub. Prüfe dein Internet und versuch es noch einmal."; }
+    S.gBusyConnect = false; render();
+    return;
+  }
   const f = ev.target.closest("[data-act='tutor-form']");
   if (!f) return;
   ev.preventDefault();
@@ -957,4 +1081,5 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
 
 render();
 initSync();
+gSync();
 getSample().then((s) => { if (s) { S.ai = true; document.documentElement.dataset.ai = "1"; } });
