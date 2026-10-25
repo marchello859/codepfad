@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Codepfad</title>
+<meta name="description" content="Programmieren lernen: C, Python und JavaScript von Einsteiger bis Profi, mit Quiz und Live-Code.">
+<meta name="theme-color" content="#F3F5F8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C0F15" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<div class="shell" id="shell">
+  <aside class="side">
+    <div class="brand"><span class="brand-mark">{ }</span>Codepfad</div>
+    <nav id="side-nav"></nav>
+    <div class="sync" id="sync-side" data-s="local"><i></i><span>Nur auf diesem Gerät</span></div>
+  </aside>
+  <div class="main-col">
+    <header class="top">
+      <div class="brand"><span class="brand-mark">{ }</span>Codepfad</div>
+      <div class="seg" id="lang-seg" role="group" aria-label="Programmiersprache"></div>
+    </header>
+    <main id="main"></main>
+  </div>
+  <nav class="tabbar" id="tabbar"></nav>
+</div>
+<script src="lessons/_base.js"></script>
+<script src="lessons/c.js"></script>
+<script src="lessons/py.js"></script>
+<script src="lessons/js.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

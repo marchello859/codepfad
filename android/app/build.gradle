@@ -1,0 +1,45 @@
+plugins {
+    id "com.android.application"
+}
+
+// Adresse der Web-App; die APK lädt immer die aktuelle Version von dort
+def appUrl = System.getenv("CODEPFAD_URL") ?: "https://example.github.io/codepfad/"
+
+android {
+    namespace "de.codepfad.app"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "de.codepfad.app"
+        minSdk 26
+        targetSdk 34
+        versionCode((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger())
+        versionName "1.0." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
+        buildConfigField "String", "APP_URL", "\"${appUrl}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("../codepfad.keystore")
+            storePassword "codepfad"
+            keyAlias "codepfad"
+            keyPassword "codepfad"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
